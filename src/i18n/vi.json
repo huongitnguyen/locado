@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "title": "Locado - Quản lý Domain Local",
+    "description": "Map custom domain sang localhost, Docker container, hoặc remote host với HTTPS tích hợp"
+  },
+  "nav": {
+    "features": "Tính năng",
+    "install": "Cài đặt",
+    "docs": "Tài liệu",
+    "faq": "FAQ"
+  },
+  "hero": {
+    "title": "Quản lý Domain Local",
+    "typingTexts": [
+      "Map custom domain sang localhost, Docker, hoặc remote host",
+      "HTTPS tích hợp với self-signed CA",
+      "Nhiều TLD: .local, .test, .dev, hoặc tùy chỉnh",
+      "Đa nền tảng: macOS, Linux, Windows",
+      "CLI đầy đủ với auto-start service"
+    ],
+    "installBtn": "Cài đặt nhanh",
+    "docsBtn": "Tài liệu"
+  },
+  "features": {
+    "title": "Tính năng",
+    "items": [
+      {
+        "icon": "globe-outline",
+        "title": "Nhiều TLD",
+        "description": "Sử dụng .local, .test, .dev hoặc TLD tùy chỉnh. Cấu hình tối đa 10 TLD khác nhau."
+      },
+      {
+        "icon": "lock-closed-outline",
+        "title": "HTTPS tích hợp",
+        "description": "Self-signed CA với one-click trust. Không cần proxy bên ngoài như Caddy hay Nginx."
+      },
+      {
+        "icon": "cube-outline",
+        "title": "Tích hợp Docker",
+        "description": "Tự động phát hiện container đang chạy và map sang domain. Hoạt động tự động với container port."
+      },
+      {
+        "icon": "server-outline",
+        "title": "Remote Host",
+        "description": "Proxy sang remote IP hoặc SSH tunnel. Truy cập internal service qua local domain."
+      },
+      {
+        "icon": "desktop-outline",
+        "title": "DNS đa nền tảng",
+        "description": "Hỗ trợ DNS native: dnsmasq (macOS), systemd-resolved (Linux), Acrylic (Windows), hoặc hosts file."
+      },
+      {
+        "icon": "terminal-outline",
+        "title": "CLI & Service",
+        "description": "CLI đầy đủ với shell completion. Auto-start khi boot qua LaunchD (macOS) hoặc systemd (Linux)."
+      }
+    ]
+  },
+  "install": {
+    "title": "Cài đặt",
+    "subtitle": "Một lệnh để bắt đầu",
+    "copyBtn": "Copy",
+    "copiedBtn": "Đã copy!",
+    "commands": {
+      "install": "curl -fsSL https://locado.hxd.app/install.sh | bash",
+      "addDomain": "locado domain add myapp.local localhost:3000",
+      "startService": "locado service start"
+    }
+  },
+  "faq": {
+    "title": "Câu hỏi thường gặp",
+    "items": [
+      {
+        "question": "Có cần Caddy hoặc Nginx không?",
+        "answer": "Không. Locado có sẵn Go reverse proxy với hỗ trợ SSL. Không cần dependency bên ngoài."
+      },
+      {
+        "question": "Có thể dùng nhiều TLD không?",
+        "answer": "Có! Bạn có thể cấu hình tối đa 10 TLD khác nhau như .local, .test, .dev, hoặc TLD tùy chỉnh."
+      },
+      {
+        "question": "Có hoạt động trên Windows không?",
+        "answer": "Có. Locado hỗ trợ Windows qua Acrylic DNS Proxy. Cũng hoạt động trên macOS (dnsmasq) và Linux (systemd-resolved)."
+      },
+      {
+        "question": "Làm sao để auto-start khi boot?",
+        "answer": "Chạy 'locado service enable' để cấu hình auto-start. Sử dụng LaunchD trên macOS và systemd trên Linux."
+      },
+      {
+        "question": "Làm sao để gỡ cài đặt hoàn toàn?",
+        "answer": "Chạy 'locado uninstall --purge' để xóa tất cả file, cấu hình, DNS setting, và certificate."
+      },
+      {
+        "question": "HTTPS có thực sự tự động không?",
+        "answer": "Có. Locado tự động generate self-signed CA và certificate. Chạy 'locado cert trust' để thêm CA vào system keychain."
+      }
+    ]
+  },
+  "changelog": {
+    "title": "Lịch sử phiên bản",
+    "versions": [
+      {
+        "version": "v1.0.0",
+        "date": "Sắp ra mắt",
+        "changes": [
+          "Phiên bản công khai đầu tiên",
+          "Hỗ trợ nhiều TLD (tối đa 10)",
+          "Reverse proxy tích hợp với HTTPS",
+          "Tự động phát hiện Docker container",
+          "Quản lý DNS đa nền tảng",
+          "CLI đầy đủ với shell completion"
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "madeBy": "Được tạo với",
+    "by": "bởi",
+    "author": "Hồ Xuân Dũng",
+    "links": {
+      "github": "GitHub",
+      "website": "Website"
+    }
+  }
+}

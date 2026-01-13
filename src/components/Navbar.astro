@@ -1,0 +1,90 @@
+---
+interface Props {
+  t: {
+    nav: {
+      features: string;
+      install: string;
+      docs: string;
+      faq: string;
+    };
+  };
+  lang: string;
+}
+
+const { t, lang } = Astro.props;
+const otherLang = lang === 'en' ? 'vi' : 'en';
+const otherLangPath = lang === 'en' ? '/vi' : '/';
+---
+
+<nav class="fixed top-0 left-0 right-0 z-50 bg-bg-primary/80 backdrop-blur-lg border-b border-white/10">
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <!-- Logo -->
+    <a href={lang === 'en' ? '/' : '/vi'} class="flex items-center gap-3 group">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" class="transition-transform group-hover:scale-110">
+        <defs>
+          <linearGradient id="navLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f97316"/>
+            <stop offset="100%" stop-color="#dc2626"/>
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#navLogoGradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 28 C14 32 14 38 18 42 L22 46 C26 50 32 50 36 46"/>
+          <path d="M46 36 C50 32 50 26 46 22 L42 18 C38 14 32 14 28 18"/>
+          <line x1="26" y1="38" x2="38" y2="26"/>
+        </g>
+      </svg>
+      <span class="text-xl font-bold gradient-text">LOCADO</span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#features" class="text-text-secondary hover:text-text-primary transition-colors">{t.nav.features}</a>
+      <a href="#install" class="text-text-secondary hover:text-text-primary transition-colors">{t.nav.install}</a>
+      <a href="#faq" class="text-text-secondary hover:text-text-primary transition-colors">{t.nav.faq}</a>
+      <a href="https://github.com/xuandung38/locado" target="_blank" rel="noopener noreferrer" class="text-text-secondary hover:text-text-primary transition-colors">
+        <ion-icon name="logo-github" class="text-xl"></ion-icon>
+      </a>
+      <a href={otherLangPath} class="px-3 py-1 text-sm border border-white/20 rounded-md hover:border-accent-orange/50 transition-colors">
+        {otherLang.toUpperCase()}
+      </a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden p-2 text-text-secondary hover:text-text-primary">
+      <ion-icon name="menu-outline" class="text-2xl"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden md:hidden border-t border-white/10 bg-bg-primary">
+    <div class="px-4 py-4 space-y-4">
+      <a href="#features" class="block text-text-secondary hover:text-text-primary">{t.nav.features}</a>
+      <a href="#install" class="block text-text-secondary hover:text-text-primary">{t.nav.install}</a>
+      <a href="#faq" class="block text-text-secondary hover:text-text-primary">{t.nav.faq}</a>
+      <div class="flex items-center gap-4 pt-2 border-t border-white/10">
+        <a href="https://github.com/xuandung38/locado" target="_blank" rel="noopener noreferrer" class="text-text-secondary hover:text-text-primary">
+          <ion-icon name="logo-github" class="text-xl"></ion-icon>
+        </a>
+        <a href={otherLangPath} class="px-3 py-1 text-sm border border-white/20 rounded-md">
+          {otherLang.toUpperCase()}
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const btn = document.getElementById('mobileMenuBtn');
+  const menu = document.getElementById('mobileMenu');
+
+  btn?.addEventListener('click', () => {
+    menu?.classList.toggle('hidden');
+  });
+
+  // Close menu when clicking a link
+  menu?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      menu?.classList.add('hidden');
+    });
+  });
+</script>

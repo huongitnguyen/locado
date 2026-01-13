@@ -1,0 +1,86 @@
+---
+interface Props {
+  t: {
+    install: {
+      title: string;
+      subtitle: string;
+      copyBtn: string;
+      copiedBtn: string;
+      commands: {
+        install: string;
+        addDomain: string;
+        startService: string;
+      };
+    };
+  };
+}
+
+const { t } = Astro.props;
+---
+
+<section id="install" class="py-20 px-4">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">
+      <span class="gradient-text">{t.install.title}</span>
+    </h2>
+    <p class="text-text-secondary text-center mb-10">{t.install.subtitle}</p>
+
+    <div class="space-y-4">
+      <!-- Install command -->
+      <div class="code-block group relative">
+        <div class="flex items-start gap-3">
+          <span class="text-accent-orange select-none">$</span>
+          <code class="text-text-primary break-all" id="installCmd">{t.install.commands.install}</code>
+        </div>
+        <button
+          class="copy-btn absolute top-3 right-3 px-3 py-1 text-xs bg-white/10 hover:bg-white/20 rounded transition-colors"
+          data-cmd={t.install.commands.install}
+          data-copy={t.install.copyBtn}
+          data-copied={t.install.copiedBtn}
+        >
+          <ion-icon name="copy-outline" class="mr-1"></ion-icon>
+          {t.install.copyBtn}
+        </button>
+      </div>
+
+      <!-- Add domain command -->
+      <div class="code-block group relative">
+        <div class="flex items-start gap-3">
+          <span class="text-accent-orange select-none">$</span>
+          <code class="text-text-primary break-all">{t.install.commands.addDomain}</code>
+        </div>
+        <span class="absolute top-3 right-3 text-xs text-text-secondary"># Add a domain</span>
+      </div>
+
+      <!-- Start service command -->
+      <div class="code-block group relative">
+        <div class="flex items-start gap-3">
+          <span class="text-accent-orange select-none">$</span>
+          <code class="text-text-primary break-all">{t.install.commands.startService}</code>
+        </div>
+        <span class="absolute top-3 right-3 text-xs text-text-secondary"># Start service</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const cmd = btn.getAttribute('data-cmd');
+      const copyText = btn.getAttribute('data-copy');
+      const copiedText = btn.getAttribute('data-copied');
+
+      if (cmd) {
+        await navigator.clipboard.writeText(cmd);
+        btn.innerHTML = `<ion-icon name="checkmark-circle" class="mr-1"></ion-icon>${copiedText}`;
+        btn.classList.add('text-green-400');
+
+        setTimeout(() => {
+          btn.innerHTML = `<ion-icon name="copy-outline" class="mr-1"></ion-icon>${copyText}`;
+          btn.classList.remove('text-green-400');
+        }, 2000);
+      }
+    });
+  });
+</script>

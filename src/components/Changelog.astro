@@ -1,0 +1,47 @@
+---
+interface Version {
+  version: string;
+  date: string;
+  changes: string[];
+}
+
+interface Props {
+  t: {
+    changelog: {
+      title: string;
+      versions: Version[];
+    };
+  };
+}
+
+const { t } = Astro.props;
+---
+
+<section class="py-20 px-4">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">
+      <span class="gradient-text">{t.changelog.title}</span>
+    </h2>
+
+    <div class="space-y-8">
+      {t.changelog.versions.map((version) => (
+        <div class="card">
+          <div class="flex items-center gap-4 mb-4">
+            <span class="px-3 py-1 bg-gradient-to-r from-accent-orange to-accent-red text-white text-sm font-mono rounded">
+              {version.version}
+            </span>
+            <span class="text-text-secondary text-sm">{version.date}</span>
+          </div>
+          <ul class="space-y-2">
+            {version.changes.map((change) => (
+              <li class="flex items-start gap-2 text-text-secondary">
+                <ion-icon name="checkmark-circle" class="text-accent-amber mt-1 flex-shrink-0"></ion-icon>
+                <span>{change}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

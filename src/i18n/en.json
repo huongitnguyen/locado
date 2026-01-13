@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "title": "Locado - Local Domain Manager",
+    "description": "Map custom domains to localhost, Docker containers, or remote hosts with built-in HTTPS support"
+  },
+  "nav": {
+    "features": "Features",
+    "install": "Install",
+    "docs": "Docs",
+    "faq": "FAQ"
+  },
+  "hero": {
+    "title": "Local Domain Manager",
+    "typingTexts": [
+      "Map custom domains to localhost, Docker, or remote hosts",
+      "Built-in HTTPS with self-signed CA",
+      "Multiple TLDs: .local, .test, .dev, or custom",
+      "Cross-platform: macOS, Linux, Windows",
+      "Full CLI with auto-start service"
+    ],
+    "installBtn": "Quick Install",
+    "docsBtn": "Documentation"
+  },
+  "features": {
+    "title": "Features",
+    "items": [
+      {
+        "icon": "globe-outline",
+        "title": "Multiple TLDs",
+        "description": "Use .local, .test, .dev or any custom TLD. Configure up to 10 different TLDs for your domains."
+      },
+      {
+        "icon": "lock-closed-outline",
+        "title": "Built-in HTTPS",
+        "description": "Self-signed CA with one-click trust. No external proxy like Caddy or Nginx needed."
+      },
+      {
+        "icon": "cube-outline",
+        "title": "Docker Integration",
+        "description": "Auto-detect running containers and map them to domains. Works with container ports automatically."
+      },
+      {
+        "icon": "server-outline",
+        "title": "Remote Hosts",
+        "description": "Proxy to remote IPs or SSH tunnels. Access internal services through local domains."
+      },
+      {
+        "icon": "desktop-outline",
+        "title": "Cross-Platform DNS",
+        "description": "Native DNS support: dnsmasq (macOS), systemd-resolved (Linux), Acrylic (Windows), or hosts file fallback."
+      },
+      {
+        "icon": "terminal-outline",
+        "title": "Full CLI & Service",
+        "description": "Complete CLI with shell completion. Auto-start on boot via LaunchD (macOS) or systemd (Linux)."
+      }
+    ]
+  },
+  "install": {
+    "title": "Installation",
+    "subtitle": "One command to get started",
+    "copyBtn": "Copy",
+    "copiedBtn": "Copied!",
+    "commands": {
+      "install": "curl -fsSL https://locado.hxd.app/install.sh | bash",
+      "addDomain": "locado domain add myapp.local localhost:3000",
+      "startService": "locado service start"
+    }
+  },
+  "faq": {
+    "title": "FAQ",
+    "items": [
+      {
+        "question": "Does it require Caddy or Nginx?",
+        "answer": "No. Locado has a built-in Go reverse proxy with SSL support. No external dependencies required."
+      },
+      {
+        "question": "Can I use multiple TLDs?",
+        "answer": "Yes! You can configure up to 10 different TLDs like .local, .test, .dev, or any custom TLD you prefer."
+      },
+      {
+        "question": "Does it work on Windows?",
+        "answer": "Yes. Locado supports Windows via Acrylic DNS Proxy. It also works on macOS (dnsmasq) and Linux (systemd-resolved)."
+      },
+      {
+        "question": "How do I auto-start on boot?",
+        "answer": "Run 'locado service enable' to configure auto-start. Uses LaunchD on macOS and systemd on Linux."
+      },
+      {
+        "question": "How do I completely uninstall?",
+        "answer": "Run 'locado uninstall --purge' to remove all files, configurations, DNS settings, and certificates."
+      },
+      {
+        "question": "Is HTTPS really automatic?",
+        "answer": "Yes. Locado generates a self-signed CA and certificates automatically. Run 'locado cert trust' to add the CA to your system keychain."
+      }
+    ]
+  },
+  "changelog": {
+    "title": "Changelog",
+    "versions": [
+      {
+        "version": "v1.0.0",
+        "date": "Coming Soon",
+        "changes": [
+          "Initial public release",
+          "Multiple TLD support (max 10)",
+          "Built-in reverse proxy with HTTPS",
+          "Docker container auto-detection",
+          "Cross-platform DNS management",
+          "Full CLI with shell completion"
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "madeBy": "Made with",
+    "by": "by",
+    "author": "Ho Xuan Dung",
+    "links": {
+      "github": "GitHub",
+      "website": "Website"
+    }
+  }
+}

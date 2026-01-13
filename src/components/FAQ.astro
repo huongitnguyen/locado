@@ -1,0 +1,42 @@
+---
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  t: {
+    faq: {
+      title: string;
+      items: FAQItem[];
+    };
+  };
+}
+
+const { t } = Astro.props;
+---
+
+<section id="faq" class="py-20 px-4 bg-bg-secondary/50">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">
+      <span class="gradient-text">{t.faq.title}</span>
+    </h2>
+
+    <div class="space-y-4">
+      {t.faq.items.map((item, index) => (
+        <details class="group card cursor-pointer">
+          <summary class="flex items-center justify-between list-none">
+            <span class="font-medium text-text-primary pr-4">{item.question}</span>
+            <ion-icon
+              name="chevron-down-outline"
+              class="text-xl text-text-secondary transition-transform group-open:rotate-180"
+            ></ion-icon>
+          </summary>
+          <p class="mt-4 text-text-secondary border-t border-white/10 pt-4">
+            {item.answer}
+          </p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
