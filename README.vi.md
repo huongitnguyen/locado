@@ -26,12 +26,12 @@
 
 ## Tính Năng
 
-- 🌐 **Domain Cục Bộ Tùy Chỉnh** - Map `myapp.local` → `localhost:3000`
-- 🔒 **HTTPS Tự Động** - Chứng chỉ SSL local, được trình duyệt tin cậy
-- 🐳 **Hỗ Trợ Docker** - Proxy đến container theo tên
-- 🌍 **Host Từ Xa** - Chuyển tiếp đến server remote
-- 🖥️ **Giao Diện Web** - UI đẹp mắt để quản lý domain
-- ⚡ **DNS Không Cần Cấu Hình** - Tự động phân giải DNS
+- **Domain Cục Bộ Tùy Chỉnh** - Map `myapp.local` → `localhost:3000`
+- **HTTPS Tự Động** - Chứng chỉ SSL local, được trình duyệt tin cậy
+- **Hỗ Trợ Docker** - Proxy đến container theo tên
+- **Host Từ Xa** - Chuyển tiếp đến server remote
+- **Giao Diện Web** - UI đẹp mắt để quản lý domain
+- **DNS Không Cần Cấu Hình** - Tự động phân giải DNS
 
 ## Cài Đặt Nhanh
 
@@ -116,9 +116,9 @@ systemctl status dnsmasq           # Linux
 
 **Hồ Xuân Dũng**
 
-- 🌐 Website: [hxd.vn](https://hxd.vn)
-- 📧 Email: [me@hxd.vn](mailto:me@hxd.vn)
-- 💻 GitHub: [@xuandung38](https://github.com/xuandung38)
+- Website: [hxd.vn](https://hxd.vn)
+- Email: [me@hxd.vn](mailto:me@hxd.vn)
+- GitHub: [@xuandung38](https://github.com/xuandung38)
 
 ## Giấy Phép
 

@@ -30,12 +30,12 @@
 
 ## Features
 
-- 🌐 **Custom Local Domains** - Map `myapp.local` → `localhost:3000`
-- 🔒 **Automatic HTTPS** - Local SSL certificates, trusted by your browser
-- 🐳 **Docker Support** - Proxy to containers by name
-- 🌍 **Remote Hosts** - Forward to remote servers
-- 🖥️ **Web Dashboard** - Beautiful UI for managing domains
-- ⚡ **Zero Config DNS** - Automatic DNS resolution
+- **Custom Local Domains** - Map `myapp.local` → `localhost:3000`
+- **Automatic HTTPS** - Local SSL certificates, trusted by your browser
+- **Docker Support** - Proxy to containers by name
+- **Remote Hosts** - Forward to remote servers
+- **Web Dashboard** - Beautiful UI for managing domains
+- **Zero Config DNS** - Automatic DNS resolution
 
 ## Quick Install
 
@@ -119,9 +119,9 @@ systemctl status dnsmasq           # Linux
 
 **Hồ Xuân Dũng**
 
-- 🌐 Website: [hxd.vn](https://hxd.vn)
-- 📧 Email: [me@hxd.vn](mailto:me@hxd.vn)
-- 💻 GitHub: [@xuandung38](https://github.com/xuandung38)
+- Website: [hxd.vn](https://hxd.vn)
+- Email: [me@hxd.vn](mailto:me@hxd.vn)
+- GitHub: [@xuandung38](https://github.com/xuandung38)
 
 ## License
 
