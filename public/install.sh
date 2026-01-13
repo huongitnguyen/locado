@@ -5,6 +5,12 @@
 #
 # Usage: curl -fsSL https://locado.hxd.app/install.sh | bash
 #
+# This script will:
+# 1. Download and install the latest locado binary
+# 2. Install dnsmasq for wildcard DNS resolution
+# 3. Configure dnsmasq for *.local domains
+# 4. Install and start locado as a system service
+#
 
 set -e
 
@@ -12,12 +18,14 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Print colored output
 info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+step() { echo -e "${CYAN}[STEP]${NC} $1"; }
 
 # Banner
 echo ""
@@ -68,6 +76,11 @@ esac
 
 # GitHub repo
 REPO="xuandung38/locado"
+
+# ============================================
+# STEP 1: Download and Install Binary
+# ============================================
+step "Downloading Locado binary..."
 
 # Get latest version
 info "Fetching latest version..."
@@ -121,23 +134,218 @@ if ! command -v locado &> /dev/null; then
   error "Installation failed. 'locado' command not found."
 fi
 
-# Print success
+info "Locado $VERSION installed to $INSTALL_DIR/locado"
 echo ""
-info "Locado $VERSION installed successfully!"
+
+# ============================================
+# STEP 2: Install dnsmasq
+# ============================================
+step "Setting up DNS (dnsmasq)..."
+
+install_dnsmasq_darwin() {
+  # Check if Homebrew is installed
+  if ! command -v brew &> /dev/null; then
+    warn "Homebrew not found. Installing Homebrew first..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+
+  # Check if dnsmasq is installed
+  if brew list dnsmasq &> /dev/null; then
+    info "dnsmasq already installed"
+  else
+    info "Installing dnsmasq via Homebrew..."
+    brew install dnsmasq
+  fi
+
+  # Configure dnsmasq for *.local
+  DNSMASQ_CONF="/opt/homebrew/etc/dnsmasq.conf"
+  if [ ! -f "$DNSMASQ_CONF" ]; then
+    DNSMASQ_CONF="/usr/local/etc/dnsmasq.conf"
+  fi
+
+  # Create dnsmasq.d directory
+  DNSMASQ_D_DIR="$(dirname $DNSMASQ_CONF)/dnsmasq.d"
+  sudo mkdir -p "$DNSMASQ_D_DIR"
+
+  # Add locado config
+  if [ ! -f "$DNSMASQ_D_DIR/locado.conf" ]; then
+    info "Configuring dnsmasq for *.local domains..."
+    echo "address=/local/127.0.0.1" | sudo tee "$DNSMASQ_D_DIR/locado.conf" > /dev/null
+
+    # Ensure main config includes dnsmasq.d
+    if ! grep -q "conf-dir=$DNSMASQ_D_DIR" "$DNSMASQ_CONF" 2>/dev/null; then
+      echo "conf-dir=$DNSMASQ_D_DIR" | sudo tee -a "$DNSMASQ_CONF" > /dev/null
+    fi
+  else
+    info "dnsmasq locado config already exists"
+  fi
+
+  # Create resolver directory for macOS
+  sudo mkdir -p /etc/resolver
+
+  # Add resolver for .local domain
+  if [ ! -f "/etc/resolver/local" ]; then
+    info "Creating DNS resolver for .local..."
+    echo "nameserver 127.0.0.1" | sudo tee /etc/resolver/local > /dev/null
+  else
+    info "DNS resolver for .local already exists"
+  fi
+
+  # Start/restart dnsmasq
+  info "Starting dnsmasq service..."
+  sudo brew services restart dnsmasq 2>/dev/null || sudo brew services start dnsmasq
+}
+
+install_dnsmasq_linux() {
+  # Detect package manager
+  if command -v apt-get &> /dev/null; then
+    PKG_MANAGER="apt"
+  elif command -v dnf &> /dev/null; then
+    PKG_MANAGER="dnf"
+  elif command -v yum &> /dev/null; then
+    PKG_MANAGER="yum"
+  elif command -v pacman &> /dev/null; then
+    PKG_MANAGER="pacman"
+  else
+    warn "Unknown package manager. Please install dnsmasq manually."
+    return 1
+  fi
+
+  # Check if dnsmasq is installed
+  if command -v dnsmasq &> /dev/null; then
+    info "dnsmasq already installed"
+  else
+    info "Installing dnsmasq..."
+    case "$PKG_MANAGER" in
+      apt)
+        sudo apt-get update -qq
+        sudo apt-get install -y dnsmasq
+        ;;
+      dnf|yum)
+        sudo $PKG_MANAGER install -y dnsmasq
+        ;;
+      pacman)
+        sudo pacman -S --noconfirm dnsmasq
+        ;;
+    esac
+  fi
+
+  # Configure dnsmasq
+  DNSMASQ_D_DIR="/etc/dnsmasq.d"
+  sudo mkdir -p "$DNSMASQ_D_DIR"
+
+  if [ ! -f "$DNSMASQ_D_DIR/locado.conf" ]; then
+    info "Configuring dnsmasq for *.local domains..."
+    echo "address=/local/127.0.0.1" | sudo tee "$DNSMASQ_D_DIR/locado.conf" > /dev/null
+  else
+    info "dnsmasq locado config already exists"
+  fi
+
+  # Handle systemd-resolved conflict (Ubuntu/Fedora)
+  if systemctl is-active --quiet systemd-resolved 2>/dev/null; then
+    warn "systemd-resolved detected. Configuring to use dnsmasq..."
+
+    # Option 1: Point resolved to dnsmasq
+    RESOLVED_CONF="/etc/systemd/resolved.conf.d/locado.conf"
+    sudo mkdir -p /etc/systemd/resolved.conf.d
+
+    if [ ! -f "$RESOLVED_CONF" ]; then
+      cat << EOF | sudo tee "$RESOLVED_CONF" > /dev/null
+[Resolve]
+DNS=127.0.0.1
+Domains=~local
+EOF
+      sudo systemctl restart systemd-resolved
+    fi
+  fi
+
+  # Enable and start dnsmasq
+  info "Starting dnsmasq service..."
+  sudo systemctl enable dnsmasq 2>/dev/null || true
+  sudo systemctl restart dnsmasq
+}
+
+case "$OS" in
+  darwin) install_dnsmasq_darwin ;;
+  linux)  install_dnsmasq_linux ;;
+esac
+
+echo ""
+
+# ============================================
+# STEP 3: Install Locado Service
+# ============================================
+step "Installing Locado service..."
+
+info "Running: sudo locado service install"
+if sudo locado service install; then
+  info "Locado service installed and started"
+else
+  warn "Service installation failed. You can install manually with: sudo locado service install"
+fi
+
+echo ""
+
+# ============================================
+# STEP 4: Verify Setup
+# ============================================
+step "Verifying installation..."
+
+# Check if service is running
+sleep 2  # Wait for service to start
+
+if curl -s http://localhost:2280/api/health > /dev/null 2>&1; then
+  info "Locado service is running!"
+else
+  warn "Service may not be running yet. Check with: locado service status"
+fi
+
+# Test DNS resolution
+if [ "$OS" == "darwin" ]; then
+  if ping -c 1 -W 1 test.local > /dev/null 2>&1; then
+    info "DNS resolution working! (test.local -> 127.0.0.1)"
+  else
+    warn "DNS may need a moment to propagate. Try: ping test.local"
+  fi
+fi
+
+echo ""
+
+# ============================================
+# Success Message
+# ============================================
+echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║                                                           ║${NC}"
+echo -e "${GREEN}║          Locado $VERSION installed successfully!            ║${NC}"
+echo -e "${GREEN}║                                                           ║${NC}"
+echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo "  Dashboard: ${CYAN}http://localhost:2280${NC}"
 echo ""
 echo "  Quick Start:"
-echo "    sudo locado              # Start server manually"
+echo "    1. Open dashboard at http://localhost:2280"
+echo "    2. Add a domain (e.g., myapp.local -> localhost:3000)"
+echo "    3. Access https://myapp.local in your browser"
 echo ""
-echo "  Install as Service (auto-start on boot):"
-echo "    sudo locado service install"
-echo "    sudo locado service status"
+echo "  Service Commands:"
+case "$OS" in
+  darwin)
+    echo "    ${YELLOW}locado service status${NC}   - Check service status"
+    echo "    ${YELLOW}sudo locado service stop${NC}    - Stop service"
+    echo "    ${YELLOW}sudo locado service start${NC}   - Start service"
+    echo "    ${YELLOW}sudo locado service restart${NC} - Restart service"
+    ;;
+  linux)
+    echo "    ${YELLOW}locado service status${NC}   - Check service status"
+    echo "    ${YELLOW}sudo locado service stop${NC}    - Stop service"
+    echo "    ${YELLOW}sudo locado service start${NC}   - Start service"
+    echo "    ${YELLOW}sudo locado service restart${NC} - Restart service"
+    ;;
+esac
 echo ""
-echo "  Other Commands:"
-echo "    locado --help            # Show all commands"
-echo "    locado update check      # Check for updates"
-echo "    locado doctor            # Run diagnostics"
-echo ""
-echo "  Dashboard: http://localhost:2280"
+echo "  Update Locado:"
+echo "    ${YELLOW}locado update check${NC}  - Check for updates"
+echo "    ${YELLOW}locado update apply${NC}  - Apply available update"
 echo ""
 info "For more info, visit https://locado.hxd.app"
 echo ""
