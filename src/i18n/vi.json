@@ -93,6 +93,14 @@
       {
         "question": "HTTPS có thực sự tự động không?",
         "answer": "Có. Locado tự động generate self-signed CA và certificate. Chạy 'locado cert trust' để thêm CA vào system keychain."
+      },
+      {
+        "question": "Binary bị kill ngay sau khi cài đặt (macOS)?",
+        "answer": "Do macOS Gatekeeper quarantine. Chạy: sudo xattr -cr /usr/local/bin/locado"
+      },
+      {
+        "question": "Setup DNS từ dashboard không hoạt động?",
+        "answer": "Thao tác DNS cần quyền root. Chạy script cài đặt trong terminal: curl -fsSL https://locado.hxd.app/install.sh | bash"
       }
     ]
   },

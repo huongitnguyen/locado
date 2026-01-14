@@ -93,6 +93,14 @@
       {
         "question": "Is HTTPS really automatic?",
         "answer": "Yes. Locado generates a self-signed CA and certificates automatically. Run 'locado cert trust' to add the CA to your system keychain."
+      },
+      {
+        "question": "Binary killed immediately after install (macOS)?",
+        "answer": "This is caused by macOS Gatekeeper quarantine. Run: sudo xattr -cr /usr/local/bin/locado"
+      },
+      {
+        "question": "DNS setup from dashboard doesn't work?",
+        "answer": "DNS operations require root privileges. Run the install script in terminal: curl -fsSL https://locado.hxd.app/install.sh | bash"
       }
     ]
   },
