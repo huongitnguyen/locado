@@ -14,12 +14,12 @@
 
 set -e
 
-# Colors (using ANSI-C quoting for proper escape sequence interpretation)
-RED=$'\033[0;31m'
-GREEN=$'\033[0;32m'
-YELLOW=$'\033[1;33m'
-CYAN=$'\033[0;36m'
-NC=$'\033[0m' # No Color
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
 # Print colored output
 info() { echo -e "${GREEN}[INFO]${NC} $1"; }
@@ -29,14 +29,14 @@ step() { echo -e "${CYAN}[STEP]${NC} $1"; }
 
 # Banner
 echo ""
-printf '%b\n' "${YELLOW}  _                        _       ${NC}"
-printf '%b\n' "${YELLOW} | |    ___   ___ __ _  __| | ___  ${NC}"
-printf '%b\n' "${YELLOW} | |   / _ \\ / __/ _\` |/ _\` |/ _ \\ ${NC}"
-printf '%b\n' "${YELLOW} | |__| (_) | (_| (_| | (_| | (_) |${NC}"
-printf '%b\n' "${YELLOW} |_____\\___/ \\___\\__,_|\\__,_|\\___/ ${NC}"
+echo "  _                        _       "
+echo " | |    ___   ___ __ _  __| | ___  "
+echo " | |   / _ \ / __/ _\` |/ _\` |/ _ \ "
+echo " | |__| (_) | (_| (_| | (_| | (_) |"
+echo " |_____\___/ \___\__,_|\__,_|\___/ "
 echo ""
-printf '%b\n' "  ${CYAN}Local Domain Manager${NC}"
-printf '%b\n' "  ${CYAN}https://locado.hxd.app${NC}"
+echo "  Local Domain Manager"
+echo "  https://locado.hxd.app"
 echo ""
 
 # Detect OS
@@ -118,14 +118,18 @@ fi
 
 # Install location
 INSTALL_DIR="/usr/local/bin"
+BINARY_PATH="$TMPDIR/locado"
 
-# Check if we need sudo
+# Make sure binary is executable
+chmod +x "$BINARY_PATH"
+
+# Install binary
+info "Installing to $INSTALL_DIR..."
 if [ -w "$INSTALL_DIR" ]; then
-  mv "$TMPDIR/locado" "$INSTALL_DIR/locado"
-  chmod +x "$INSTALL_DIR/locado"
+  cp "$BINARY_PATH" "$INSTALL_DIR/locado"
 else
-  info "Requesting sudo access to install to $INSTALL_DIR..."
-  sudo mv "$TMPDIR/locado" "$INSTALL_DIR/locado"
+  # Use cp instead of mv to avoid issues with cross-filesystem moves
+  sudo cp "$BINARY_PATH" "$INSTALL_DIR/locado"
   sudo chmod +x "$INSTALL_DIR/locado"
 fi
 
@@ -320,7 +324,7 @@ printf "${GREEN}║          Locado %-7s installed successfully!           ║${
 printf "${GREEN}║                                                           ║${NC}\n"
 printf "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}\n"
 echo ""
-echo -e "  Dashboard: ${CYAN}http://localhost:2280${NC}"
+printf "  Dashboard: ${CYAN}http://localhost:2280${NC}\n"
 echo ""
 echo "  Quick Start:"
 echo "    1. Open dashboard at http://localhost:2280"
@@ -328,14 +332,14 @@ echo "    2. Add a domain (e.g., myapp.local -> localhost:3000)"
 echo "    3. Access https://myapp.local in your browser"
 echo ""
 echo "  Service Commands:"
-echo -e "    ${YELLOW}locado service status${NC}        - Check service status"
-echo -e "    ${YELLOW}sudo locado service stop${NC}     - Stop service"
-echo -e "    ${YELLOW}sudo locado service start${NC}    - Start service"
-echo -e "    ${YELLOW}sudo locado service restart${NC}  - Restart service"
+printf "    ${YELLOW}locado service status${NC}        - Check service status\n"
+printf "    ${YELLOW}sudo locado service stop${NC}     - Stop service\n"
+printf "    ${YELLOW}sudo locado service start${NC}    - Start service\n"
+printf "    ${YELLOW}sudo locado service restart${NC}  - Restart service\n"
 echo ""
 echo "  Update Locado:"
-echo -e "    ${YELLOW}locado update check${NC}   - Check for updates"
-echo -e "    ${YELLOW}locado update apply${NC}   - Apply available update"
+printf "    ${YELLOW}locado update check${NC}   - Check for updates\n"
+printf "    ${YELLOW}locado update apply${NC}   - Apply available update\n"
 echo ""
 info "For more info, visit https://locado.hxd.app"
 echo ""
