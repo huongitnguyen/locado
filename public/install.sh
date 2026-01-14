@@ -120,6 +120,12 @@ fi
 INSTALL_DIR="/usr/local/bin"
 BINARY_PATH="$TMPDIR/locado"
 
+# Ensure install directory exists
+if [ ! -d "$INSTALL_DIR" ]; then
+  info "Creating $INSTALL_DIR..."
+  sudo mkdir -p "$INSTALL_DIR"
+fi
+
 # Make sure binary is executable
 chmod +x "$BINARY_PATH"
 
