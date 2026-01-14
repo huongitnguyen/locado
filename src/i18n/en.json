@@ -97,21 +97,7 @@
     ]
   },
   "changelog": {
-    "title": "Changelog",
-    "versions": [
-      {
-        "version": "v1.0.0",
-        "date": "Coming Soon",
-        "changes": [
-          "Initial public release",
-          "Multiple TLD support (max 10)",
-          "Built-in reverse proxy with HTTPS",
-          "Docker container auto-detection",
-          "Cross-platform DNS management",
-          "Full CLI with shell completion"
-        ]
-      }
-    ]
+    "title": "Changelog"
   },
   "footer": {
     "madeBy": "Made with",

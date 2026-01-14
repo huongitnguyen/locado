@@ -1,20 +1,56 @@
 ---
-interface Version {
-  version: string;
-  date: string;
-  changes: string[];
-}
-
 interface Props {
   t: {
     changelog: {
       title: string;
-      versions: Version[];
     };
   };
 }
 
 const { t } = Astro.props;
+
+// Fetch releases from GitHub API
+interface GitHubRelease {
+  tag_name: string;
+  published_at: string;
+  body: string;
+}
+
+let releases: { version: string; date: string; changes: string[] }[] = [];
+
+try {
+  const response = await fetch('https://api.github.com/repos/xuandung38/locado/releases', {
+    headers: {
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'Locado-Landing'
+    }
+  });
+
+  if (response.ok) {
+    const data: GitHubRelease[] = await response.json();
+    releases = data.slice(0, 10).map(release => {
+      // Parse changelog from release body
+      const lines = release.body.split('\n');
+      const changes: string[] = [];
+
+      for (const line of lines) {
+        // Extract bullet points that start with "- "
+        const trimmed = line.trim();
+        if (trimmed.startsWith('- ') && !trimmed.includes('|')) {
+          changes.push(trimmed.substring(2));
+        }
+      }
+
+      return {
+        version: release.tag_name,
+        date: new Date(release.published_at).toISOString().split('T')[0],
+        changes: changes.length > 0 ? changes : ['Bug fixes and improvements']
+      };
+    });
+  }
+} catch (error) {
+  console.error('Failed to fetch releases:', error);
+}
 ---
 
 <section class="py-20 px-4">
@@ -23,25 +59,42 @@ const { t } = Astro.props;
       <span class="gradient-text">{t.changelog.title}</span>
     </h2>
 
-    <div class="space-y-8">
-      {t.changelog.versions.map((version) => (
-        <div class="card">
-          <div class="flex items-center gap-4 mb-4">
-            <span class="px-3 py-1 bg-gradient-to-r from-accent-orange to-accent-red text-white text-sm font-mono rounded">
-              {version.version}
-            </span>
-            <span class="text-text-secondary text-sm">{version.date}</span>
+    {releases.length > 0 ? (
+      <div class="space-y-8">
+        {releases.map((release) => (
+          <div class="card">
+            <div class="flex items-center gap-4 mb-4">
+              <span class="px-3 py-1 bg-gradient-to-r from-accent-orange to-accent-red text-white text-sm font-mono rounded">
+                {release.version}
+              </span>
+              <span class="text-text-secondary text-sm">{release.date}</span>
+            </div>
+            <ul class="space-y-2">
+              {release.changes.map((change) => (
+                <li class="flex items-start gap-2 text-text-secondary">
+                  <ion-icon name="checkmark-circle" class="text-accent-amber mt-1 flex-shrink-0"></ion-icon>
+                  <span>{change}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul class="space-y-2">
-            {version.changes.map((change) => (
-              <li class="flex items-start gap-2 text-text-secondary">
-                <ion-icon name="checkmark-circle" class="text-accent-amber mt-1 flex-shrink-0"></ion-icon>
-                <span>{change}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+        ))}
+      </div>
+    ) : (
+      <div class="card text-center text-text-secondary">
+        <p>Loading releases...</p>
+      </div>
+    )}
+
+    <div class="text-center mt-8">
+      <a
+        href="https://github.com/xuandung38/locado/releases"
+        target="_blank"
+        class="text-accent-amber hover:text-accent-orange transition-colors inline-flex items-center gap-2"
+      >
+        <ion-icon name="logo-github"></ion-icon>
+        View all releases on GitHub
+      </a>
     </div>
   </div>
 </section>

@@ -97,21 +97,7 @@
     ]
   },
   "changelog": {
-    "title": "Lịch sử phiên bản",
-    "versions": [
-      {
-        "version": "v1.0.0",
-        "date": "Sắp ra mắt",
-        "changes": [
-          "Phiên bản công khai đầu tiên",
-          "Hỗ trợ nhiều TLD (tối đa 10)",
-          "Reverse proxy tích hợp với HTTPS",
-          "Tự động phát hiện Docker container",
-          "Quản lý DNS đa nền tảng",
-          "CLI đầy đủ với shell completion"
-        ]
-      }
-    ]
+    "title": "Lịch sử phiên bản"
   },
   "footer": {
     "madeBy": "Được tạo với",
