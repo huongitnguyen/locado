@@ -22,6 +22,10 @@
   <a href="README.md">🇺🇸 English</a>
 </p>
 
+<p align="center">
+  <img src="public/screenshots/dashboard.png" alt="Locado Dashboard" width="800">
+</p>
+
 ---
 
 ## Tính Năng
