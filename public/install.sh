@@ -164,7 +164,7 @@ install_dnsmasq_darwin() {
     info "dnsmasq already installed"
   else
     info "Installing dnsmasq via Homebrew..."
-    brew install dnsmasq
+    brew install dnsmasq < /dev/null
   fi
 
   # Configure dnsmasq for *.local
@@ -203,7 +203,7 @@ install_dnsmasq_darwin() {
 
   # Start/restart dnsmasq
   info "Starting dnsmasq service..."
-  sudo brew services restart dnsmasq 2>/dev/null || sudo brew services start dnsmasq
+  sudo brew services restart dnsmasq < /dev/null 2>/dev/null || sudo brew services start dnsmasq < /dev/null
 }
 
 install_dnsmasq_linux() {
@@ -228,14 +228,14 @@ install_dnsmasq_linux() {
     info "Installing dnsmasq..."
     case "$PKG_MANAGER" in
       apt)
-        sudo apt-get update -qq
-        sudo apt-get install -y dnsmasq
+        sudo apt-get update -qq < /dev/null
+        sudo apt-get install -y dnsmasq < /dev/null
         ;;
       dnf|yum)
-        sudo $PKG_MANAGER install -y dnsmasq
+        sudo $PKG_MANAGER install -y dnsmasq < /dev/null
         ;;
       pacman)
-        sudo pacman -S --noconfirm dnsmasq
+        sudo pacman -S --noconfirm dnsmasq < /dev/null
         ;;
     esac
   fi
@@ -288,7 +288,7 @@ echo ""
 step "Installing Locado service..."
 
 info "Running: sudo locado service install"
-if sudo locado service install; then
+if sudo locado service install < /dev/null; then
   info "Locado service installed and started"
 else
   warn "Service installation failed. You can install manually with: sudo locado service install"
