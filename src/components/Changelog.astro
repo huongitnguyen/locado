@@ -14,9 +14,10 @@ interface GitHubRelease {
   tag_name: string;
   published_at: string;
   body: string;
+  html_url: string;
 }
 
-let releases: { version: string; date: string; changes: string[] }[] = [];
+let releases: { version: string; date: string; changes: string[]; url: string }[] = [];
 
 try {
   const response = await fetch('https://api.github.com/repos/xuandung38/locado/releases', {
@@ -28,7 +29,7 @@ try {
 
   if (response.ok) {
     const data: GitHubRelease[] = await response.json();
-    releases = data.slice(0, 10).map(release => {
+    releases = data.slice(0, 5).map(release => {
       // Parse changelog from release body
       const lines = release.body.split('\n');
       const changes: string[] = [];
@@ -44,7 +45,8 @@ try {
       return {
         version: release.tag_name,
         date: new Date(release.published_at).toISOString().split('T')[0],
-        changes: changes.length > 0 ? changes : ['Bug fixes and improvements']
+        changes: changes.length > 0 ? changes : ['Bug fixes and improvements'],
+        url: release.html_url
       };
     });
   }
@@ -53,7 +55,7 @@ try {
 }
 ---
 
-<section class="py-20 px-4">
+<section class="py-20 px-4 section-mesh">
   <div class="max-w-3xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">
       <span class="gradient-text">{t.changelog.title}</span>
@@ -64,9 +66,9 @@ try {
         {releases.map((release) => (
           <div class="card">
             <div class="flex items-center gap-4 mb-4">
-              <span class="px-3 py-1 bg-gradient-to-r from-accent-orange to-accent-red text-white text-sm font-mono rounded">
+              <a href={release.url} target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-gradient-to-r from-accent-orange to-accent-red text-white text-sm font-mono rounded hover:opacity-80 transition-opacity">
                 {release.version}
-              </span>
+              </a>
               <span class="text-text-secondary text-sm">{release.date}</span>
             </div>
             <ul class="space-y-2">

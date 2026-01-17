@@ -1,4 +1,6 @@
 ---
+import ThemeToggle from './ThemeToggle.astro';
+
 interface Props {
   t: {
     nav: {
@@ -16,7 +18,7 @@ const otherLang = lang === 'en' ? 'vi' : 'en';
 const otherLangPath = lang === 'en' ? '/vi' : '/';
 ---
 
-<nav class="fixed top-0 left-0 right-0 z-50 bg-bg-primary/80 backdrop-blur-lg border-b border-white/10">
+<nav class="navbar fixed top-0 left-0 right-0 z-50">
   <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo -->
     <a href={lang === 'en' ? '/' : '/vi'} class="flex items-center gap-3 group">
@@ -37,41 +39,77 @@ const otherLangPath = lang === 'en' ? '/vi' : '/';
     </a>
 
     <!-- Desktop Nav -->
-    <div class="hidden md:flex items-center gap-8">
+    <div class="hidden md:flex items-center gap-6">
       <a href="#features" class="text-text-secondary hover:text-text-primary transition-colors">{t.nav.features}</a>
       <a href="#install" class="text-text-secondary hover:text-text-primary transition-colors">{t.nav.install}</a>
       <a href="#faq" class="text-text-secondary hover:text-text-primary transition-colors">{t.nav.faq}</a>
       <a href="https://github.com/xuandung38/locado" target="_blank" rel="noopener noreferrer" class="text-text-secondary hover:text-text-primary transition-colors">
         <ion-icon name="logo-github" class="text-xl"></ion-icon>
       </a>
-      <a href={otherLangPath} class="px-3 py-1 text-sm border border-white/20 rounded-md hover:border-accent-orange/50 transition-colors">
+      <a href={otherLangPath} class="nav-lang-btn">
         {otherLang.toUpperCase()}
       </a>
+      <!-- Theme Toggle Button -->
+      <ThemeToggle />
     </div>
 
     <!-- Mobile Menu Button -->
-    <button id="mobileMenuBtn" class="md:hidden p-2 text-text-secondary hover:text-text-primary">
-      <ion-icon name="menu-outline" class="text-2xl"></ion-icon>
-    </button>
+    <div class="flex items-center gap-3 md:hidden">
+      <ThemeToggle />
+      <button id="mobileMenuBtn" class="p-2 text-text-secondary hover:text-text-primary">
+        <ion-icon name="menu-outline" class="text-2xl"></ion-icon>
+      </button>
+    </div>
   </div>
 
   <!-- Mobile Menu -->
-  <div id="mobileMenu" class="hidden md:hidden border-t border-white/10 bg-bg-primary">
+  <div id="mobileMenu" class="hidden md:hidden mobile-menu">
     <div class="px-4 py-4 space-y-4">
       <a href="#features" class="block text-text-secondary hover:text-text-primary">{t.nav.features}</a>
       <a href="#install" class="block text-text-secondary hover:text-text-primary">{t.nav.install}</a>
       <a href="#faq" class="block text-text-secondary hover:text-text-primary">{t.nav.faq}</a>
-      <div class="flex items-center gap-4 pt-2 border-t border-white/10">
+      <div class="flex items-center gap-4 pt-2 mobile-menu-footer">
         <a href="https://github.com/xuandung38/locado" target="_blank" rel="noopener noreferrer" class="text-text-secondary hover:text-text-primary">
           <ion-icon name="logo-github" class="text-xl"></ion-icon>
         </a>
-        <a href={otherLangPath} class="px-3 py-1 text-sm border border-white/20 rounded-md">
+        <a href={otherLangPath} class="nav-lang-btn">
           {otherLang.toUpperCase()}
         </a>
       </div>
     </div>
   </div>
 </nav>
+
+<style>
+  .navbar {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .mobile-menu {
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .mobile-menu-footer {
+    border-top: 1px solid var(--border-color);
+  }
+
+  .nav-lang-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+  }
+
+  .nav-lang-btn:hover {
+    border-color: rgba(249, 115, 22, 0.5);
+    background: rgba(249, 115, 22, 0.08);
+  }
+</style>
 
 <script>
   const btn = document.getElementById('mobileMenuBtn');

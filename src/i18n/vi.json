@@ -101,6 +101,10 @@
       {
         "question": "Setup DNS từ dashboard không hoạt động?",
         "answer": "Thao tác DNS cần quyền root. Chạy script cài đặt trong terminal: curl -fsSL https://locado.hxd.app/install.sh | bash"
+      },
+      {
+        "question": "Certificate không được trust sau khi cài đặt (macOS)?",
+        "answer": "CA certificate có thể thiếu SSL trust policy. Chạy lệnh: sudo security add-trusted-cert -d -r trustRoot -p ssl -k /Library/Keychains/System.keychain ~/.local/share/locado/certs/ca.crt"
       }
     ]
   },
