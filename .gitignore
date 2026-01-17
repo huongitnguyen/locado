@@ -3,3 +3,9 @@ node_modules/*
 
 # dist
 dist/*
+# plans
+plans/*
+
+#AI
+.claude/*
+CLAUDE.md
