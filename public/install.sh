@@ -142,11 +142,19 @@ info "Installing to $INSTALL_DIR..."
 if [ "$UPGRADE_MODE" = true ]; then
     step "Upgrading from $OLD_VERSION to $VERSION..."
 
-    # Stop service before replacing binary
-    if sudo locado service status &>/dev/null; then
-        info "Stopping existing service..."
-        sudo locado service stop 2>/dev/null || true
-        sleep 1
+    # Stop service before replacing binary (use launchctl/systemctl directly to avoid binary issues)
+    if [ "$OS" = "darwin" ]; then
+        if sudo launchctl list 2>/dev/null | grep -q "com.locado.app"; then
+            info "Stopping existing service..."
+            sudo launchctl bootout system/com.locado.app 2>/dev/null || true
+            sleep 1
+        fi
+    else
+        if systemctl is-active --quiet locado 2>/dev/null; then
+            info "Stopping existing service..."
+            sudo systemctl stop locado 2>/dev/null || true
+            sleep 1
+        fi
     fi
 
     # Create backup
@@ -160,12 +168,20 @@ if [ -w "$INSTALL_DIR" ]; then
   cp "$BINARY_PATH" "$INSTALL_DIR/locado"
   # Remove extended attributes that trigger macOS Gatekeeper
   xattr -cr "$INSTALL_DIR/locado" 2>/dev/null || true
+  # Ad-hoc sign binary to bypass Gatekeeper on macOS
+  if [ "$OS" = "darwin" ]; then
+    codesign --sign - --force "$INSTALL_DIR/locado" 2>/dev/null || true
+  fi
 else
   # Use cp instead of mv to avoid issues with cross-filesystem moves
   sudo cp "$BINARY_PATH" "$INSTALL_DIR/locado"
   sudo chmod +x "$INSTALL_DIR/locado"
   # Remove extended attributes that trigger macOS Gatekeeper
   sudo xattr -cr "$INSTALL_DIR/locado" 2>/dev/null || true
+  # Ad-hoc sign binary to bypass Gatekeeper on macOS
+  if [ "$OS" = "darwin" ]; then
+    sudo codesign --sign - --force "$INSTALL_DIR/locado" 2>/dev/null || true
+  fi
 fi
 
 # Verify installation
@@ -323,11 +339,22 @@ echo ""
 # ============================================
 if [ "$UPGRADE_MODE" = true ]; then
     step "Restarting Locado service..."
-    info "Running: sudo locado service start"
-    if sudo locado service start; then
-        info "Locado service restarted"
+    # Use launchctl/systemctl directly to avoid issues with unsigned binary
+    if [ "$OS" = "darwin" ]; then
+        info "Running: launchctl bootstrap system /Library/LaunchDaemons/com.locado.app.plist"
+        if sudo launchctl bootstrap system /Library/LaunchDaemons/com.locado.app.plist 2>/dev/null; then
+            info "Locado service restarted"
+        else
+            # Service might already be bootstrapped, try kickstart
+            sudo launchctl kickstart -k system/com.locado.app 2>/dev/null && info "Locado service restarted" || warn "Service restart failed. Try: sudo locado service start"
+        fi
     else
-        warn "Service restart failed. Try: sudo locado service start"
+        info "Running: systemctl start locado"
+        if sudo systemctl start locado; then
+            info "Locado service restarted"
+        else
+            warn "Service restart failed. Try: sudo locado service start"
+        fi
     fi
 else
     step "Installing Locado service..."
