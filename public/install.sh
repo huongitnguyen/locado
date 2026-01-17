@@ -39,6 +39,18 @@ echo "  Local Domain Manager"
 echo "  https://locado.hxd.app"
 echo ""
 
+# ============================================
+# UPGRADE DETECTION
+# ============================================
+UPGRADE_MODE=false
+OLD_VERSION=""
+
+if command -v locado &> /dev/null; then
+    UPGRADE_MODE=true
+    OLD_VERSION=$(locado --version 2>/dev/null | awk '{print $NF}' || echo "unknown")
+    info "Existing installation detected: $OLD_VERSION"
+fi
+
 # Detect OS
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 case "$OS" in
@@ -120,23 +132,40 @@ fi
 INSTALL_DIR="/usr/local/bin"
 BINARY_PATH="$TMPDIR/locado"
 
-# Ensure install directory exists
-if [ ! -d "$INSTALL_DIR" ]; then
-  info "Creating $INSTALL_DIR..."
-  sudo mkdir -p "$INSTALL_DIR"
-fi
-
 # Make sure binary is executable
 chmod +x "$BINARY_PATH"
 
 # Install binary
 info "Installing to $INSTALL_DIR..."
+
+# Handle upgrade: stop service and create backup
+if [ "$UPGRADE_MODE" = true ]; then
+    step "Upgrading from $OLD_VERSION to $VERSION..."
+
+    # Stop service before replacing binary
+    if sudo locado service status &>/dev/null; then
+        info "Stopping existing service..."
+        sudo locado service stop 2>/dev/null || true
+        sleep 1
+    fi
+
+    # Create backup
+    if [ -f "$INSTALL_DIR/locado" ]; then
+        info "Creating backup..."
+        sudo cp "$INSTALL_DIR/locado" "$INSTALL_DIR/locado.bak" 2>/dev/null || true
+    fi
+fi
+
 if [ -w "$INSTALL_DIR" ]; then
   cp "$BINARY_PATH" "$INSTALL_DIR/locado"
+  # Remove extended attributes that trigger macOS Gatekeeper
+  xattr -cr "$INSTALL_DIR/locado" 2>/dev/null || true
 else
   # Use cp instead of mv to avoid issues with cross-filesystem moves
   sudo cp "$BINARY_PATH" "$INSTALL_DIR/locado"
   sudo chmod +x "$INSTALL_DIR/locado"
+  # Remove extended attributes that trigger macOS Gatekeeper
+  sudo xattr -cr "$INSTALL_DIR/locado" 2>/dev/null || true
 fi
 
 # Verify installation
@@ -148,9 +177,13 @@ info "Locado $VERSION installed to $INSTALL_DIR/locado"
 echo ""
 
 # ============================================
-# STEP 2: Install dnsmasq
+# STEP 2: Install dnsmasq (skip on upgrade)
 # ============================================
-step "Setting up DNS (dnsmasq)..."
+if [ "$UPGRADE_MODE" = true ]; then
+    step "Skipping DNS setup (upgrade mode - config preserved)"
+else
+    step "Setting up DNS (dnsmasq)..."
+fi
 
 install_dnsmasq_darwin() {
   # Check if Homebrew is installed
@@ -164,7 +197,7 @@ install_dnsmasq_darwin() {
     info "dnsmasq already installed"
   else
     info "Installing dnsmasq via Homebrew..."
-    brew install dnsmasq < /dev/null
+    brew install dnsmasq
   fi
 
   # Configure dnsmasq for *.local
@@ -203,7 +236,7 @@ install_dnsmasq_darwin() {
 
   # Start/restart dnsmasq
   info "Starting dnsmasq service..."
-  sudo brew services restart dnsmasq < /dev/null 2>/dev/null || sudo brew services start dnsmasq < /dev/null
+  sudo brew services restart dnsmasq 2>/dev/null || sudo brew services start dnsmasq
 }
 
 install_dnsmasq_linux() {
@@ -228,14 +261,14 @@ install_dnsmasq_linux() {
     info "Installing dnsmasq..."
     case "$PKG_MANAGER" in
       apt)
-        sudo apt-get update -qq < /dev/null
-        sudo apt-get install -y dnsmasq < /dev/null
+        sudo apt-get update -qq
+        sudo apt-get install -y dnsmasq
         ;;
       dnf|yum)
-        sudo $PKG_MANAGER install -y dnsmasq < /dev/null
+        sudo $PKG_MANAGER install -y dnsmasq
         ;;
       pacman)
-        sudo pacman -S --noconfirm dnsmasq < /dev/null
+        sudo pacman -S --noconfirm dnsmasq
         ;;
     esac
   fi
@@ -275,23 +308,35 @@ EOF
   sudo systemctl restart dnsmasq
 }
 
-case "$OS" in
-  darwin) install_dnsmasq_darwin ;;
-  linux)  install_dnsmasq_linux ;;
-esac
+# Only run dnsmasq setup on fresh install
+if [ "$UPGRADE_MODE" = false ]; then
+    case "$OS" in
+      darwin) install_dnsmasq_darwin ;;
+      linux)  install_dnsmasq_linux ;;
+    esac
+fi
 
 echo ""
 
 # ============================================
-# STEP 3: Install Locado Service
+# STEP 3: Install/Restart Locado Service
 # ============================================
-step "Installing Locado service..."
-
-info "Running: sudo locado service install"
-if sudo locado service install < /dev/null; then
-  info "Locado service installed and started"
+if [ "$UPGRADE_MODE" = true ]; then
+    step "Restarting Locado service..."
+    info "Running: sudo locado service start"
+    if sudo locado service start; then
+        info "Locado service restarted"
+    else
+        warn "Service restart failed. Try: sudo locado service start"
+    fi
 else
-  warn "Service installation failed. You can install manually with: sudo locado service install"
+    step "Installing Locado service..."
+    info "Running: sudo locado service install"
+    if sudo locado service install; then
+        info "Locado service installed and started"
+    else
+        warn "Service installation failed. You can install manually with: sudo locado service install"
+    fi
 fi
 
 echo ""
@@ -324,18 +369,34 @@ echo ""
 # ============================================
 # Success Message
 # ============================================
-printf "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}\n"
-printf "${GREEN}║                                                           ║${NC}\n"
-printf "${GREEN}║          Locado %-7s installed successfully!           ║${NC}\n" "$VERSION"
-printf "${GREEN}║                                                           ║${NC}\n"
-printf "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}\n"
-echo ""
-printf "  Dashboard: ${CYAN}http://localhost:2280${NC}\n"
-echo ""
-echo "  Quick Start:"
-echo "    1. Open dashboard at http://localhost:2280"
-echo "    2. Add a domain (e.g., myapp.local -> localhost:3000)"
-echo "    3. Access https://myapp.local in your browser"
+if [ "$UPGRADE_MODE" = true ]; then
+    printf "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}\n"
+    printf "${GREEN}║                                                           ║${NC}\n"
+    printf "${GREEN}║         Locado upgraded to %-7s successfully!          ║${NC}\n" "$VERSION"
+    printf "${GREEN}║                                                           ║${NC}\n"
+    printf "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}\n"
+    echo ""
+    printf "  Previous version: ${YELLOW}$OLD_VERSION${NC}\n"
+    printf "  Backup available: ${YELLOW}$INSTALL_DIR/locado.bak${NC}\n"
+    echo ""
+    echo "  To rollback if needed:"
+    printf "    ${YELLOW}sudo locado update rollback${NC}\n"
+    echo ""
+    printf "  Dashboard: ${CYAN}http://localhost:2280${NC}\n"
+else
+    printf "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}\n"
+    printf "${GREEN}║                                                           ║${NC}\n"
+    printf "${GREEN}║          Locado %-7s installed successfully!           ║${NC}\n" "$VERSION"
+    printf "${GREEN}║                                                           ║${NC}\n"
+    printf "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}\n"
+    echo ""
+    printf "  Dashboard: ${CYAN}http://localhost:2280${NC}\n"
+    echo ""
+    echo "  Quick Start:"
+    echo "    1. Open dashboard at http://localhost:2280"
+    echo "    2. Add a domain (e.g., myapp.local -> localhost:3000)"
+    echo "    3. Access https://myapp.local in your browser"
+fi
 echo ""
 echo "  Service Commands:"
 printf "    ${YELLOW}locado service status${NC}        - Check service status\n"
