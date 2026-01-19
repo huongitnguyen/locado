@@ -83,7 +83,10 @@ All translations stored in `src/i18n/{lang}.json` with flat-key structure:
 **Current Routes:**
 - `/` - English homepage (index.astro)
 - `/vi` - Vietnamese homepage (vi.astro)
-- **Planned:** `/ru`, `/zh`, `/ko`, `/ja` (Phase 2)
+- `/ru` - Russian homepage (ru.astro)
+- `/zh` - Chinese Simplified homepage (zh.astro)
+- `/ko` - Korean homepage (ko.astro)
+- `/ja` - Japanese homepage (ja.astro)
 
 **Implementation Pattern:**
 Each language has dedicated `.astro` page that:
@@ -95,8 +98,9 @@ Each language has dedicated `.astro` page that:
 
 **Navbar.astro:**
 - Props: `t` (translations), `lang` (current language)
-- Features: Language switcher, navigation links
-- Language toggle: Shows link to other language route
+- Features: Accessible dropdown with all 6 languages, navigation links
+- Language dropdown: Shows all languages with current highlighted
+- Implementation: Custom dropdown with keyboard navigation & ARIA labels
 
 **Hero.astro:**
 - Displays hero section with typing animation
@@ -164,24 +168,29 @@ All UI strings centralized in JSON files - no hardcoded strings in components.
 - Dashboard references suggest planned backend (phase 2+)
 - Translation files are public assets - no sensitive data
 
-## Phase 1 Completion Status
+## Phase 1-3 Completion Status
 
-**Completed:**
+**Phase 1 - Completed:**
 - 4 new translation files (ru, zh, ko, ja)
 - All translations aligned with en.json structure
 - Files follow consistent JSON formatting
 
-**Not Yet Implemented:**
-- Page routes for new languages (/ru, /zh, /ko, /ja)
-- Navbar language selection UI updates
-- Automated language detection
-- SEO hreflang links for language variants
+**Phase 2 - Completed:**
+- Page routes created: ru.astro, zh.astro, ko.astro, ja.astro
+- All routes follow identical pattern to vi.astro
+- Static build generates 6 language-specific pages
 
-**Next Phase (Phase 2):**
-- Create language-specific page routes
-- Update navigation to include all 6 languages
-- Add language detection and redirect logic
-- Update SEO metadata with hreflang tags
+**Phase 3 - Completed:**
+- Navbar refactored with accessible dropdown component
+- Dropdown displays all 6 languages
+- Current language highlighted
+- Keyboard navigation & ARIA attributes implemented
+- WCAG 2.1 AA compliant
+
+**Future Enhancements:**
+- Language detection and redirect logic
+- SEO hreflang links for language variants
+- Auto-redirect based on browser locale
 
 ## Development Workflow
 

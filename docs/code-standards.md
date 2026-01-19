@@ -173,17 +173,31 @@ Always set HTML lang attribute:
 
 Values: `en`, `vi`, `ru`, `zh`, `ko`, `ja`
 
-### Navigation Links
+### Navigation & Language Dropdown (Phase 3)
 
-Language switcher should provide:
-- Current page in current language
-- Link to same page in other language
-- Clear indication of selected language
+**Dropdown Accessibility Requirements:**
+- ARIA labels: `aria-label="Select language"` on button, `aria-label` on each option
+- Keyboard navigation: Arrow keys to navigate, Enter/Space to select, Escape to close
+- Current language highlighted with visual indicator
+- All 6 languages listed with native names
 
-Example:
+**Implementation Pattern:**
+```astro
+const languages = [
+  { code: 'en', name: 'English', path: '/' },
+  { code: 'vi', name: 'Tiếng Việt', path: '/vi' },
+  { code: 'ru', name: 'Русский', path: '/ru' },
+  { code: 'zh', name: '简体中文', path: '/zh' },
+  { code: 'ko', name: '한국어', path: '/ko' },
+  { code: 'ja', name: '日本語', path: '/ja' }
+];
 ```
-English (current) | 中文 (click to switch)
-```
+
+**WCAG 2.1 AA Compliance:**
+- Minimum 44x44px button size for touch targets
+- Contrast ratio >= 4.5:1 for text
+- Focus indicators visible on keyboard navigation
+- Dropdown items readable with screen readers
 
 ## CSS & Styling Standards
 
@@ -278,17 +292,20 @@ refactor(components): improve type safety
 - [x] Korean (ko.json)
 - [x] Japanese (ja.json)
 
-**Phase 2 - Page Routes (Pending):**
-- [ ] /ru route with ru.astro page
-- [ ] /zh route with zh.astro page
-- [ ] /ko route with ko.astro page
-- [ ] /ja route with ja.astro page
+**Phase 2 - Page Routes (Complete):**
+- [x] /ru route with ru.astro page
+- [x] /zh route with zh.astro page
+- [x] /ko route with ko.astro page
+- [x] /ja route with ja.astro page
 
-**Phase 3 - Navigation & SEO (Pending):**
-- [ ] Update Navbar to show all 6 languages
-- [ ] Add hreflang meta tags
-- [ ] Language detection logic
-- [ ] Redirect handling
+**Phase 3 - Navigation & Accessibility (Complete):**
+- [x] Navbar refactored with dropdown showing all 6 languages
+- [x] ARIA labels & keyboard navigation
+- [x] Current language visual indication
+- [x] WCAG 2.1 AA compliance
+- [ ] Add hreflang meta tags (Future)
+- [ ] Language detection logic (Future)
+- [ ] Redirect handling (Future)
 
 ## Testing Checklist
 

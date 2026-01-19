@@ -14,13 +14,16 @@ Locado is a **static site generator (SSG)** with a multilingual web interface bu
 │              Static Web Interface (HTML/CSS/JS)          │
 │         Built with Astro + TypeScript + Tailwind        │
 ├─────────────────────────────────────────────────────────┤
-│  Language Support (i18n)                                │
-│  ├─ English (en)                                        │
-│  ├─ Vietnamese (vi)                                     │
-│  ├─ Russian (ru) [Phase 1]                             │
-│  ├─ Chinese Simplified (zh) [Phase 1]                  │
-│  ├─ Korean (ko) [Phase 1]                              │
-│  └─ Japanese (ja) [Phase 1]                            │
+│  Language Support (i18n) - Full Support                 │
+│  ├─ English (en) /                                      │
+│  ├─ Vietnamese (vi) /vi                                 │
+│  ├─ Russian (ru) /ru                                    │
+│  ├─ Chinese Simplified (zh) /zh                         │
+│  ├─ Korean (ko) /ko                                     │
+│  └─ Japanese (ja) /ja                                   │
+│                                                         │
+│  Navigation: Accessible dropdown with all 6 languages   │
+│  Accessibility: WCAG 2.1 AA compliant                   │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -58,10 +61,10 @@ Static Files in /dist/
 │           Translation Files (JSON)                    │
 │  ├─ src/i18n/en.json                                │
 │  ├─ src/i18n/vi.json                                │
-│  ├─ src/i18n/ru.json (NEW - Phase 1)               │
-│  ├─ src/i18n/zh.json (NEW - Phase 1)               │
-│  ├─ src/i18n/ko.json (NEW - Phase 1)               │
-│  └─ src/i18n/ja.json (NEW - Phase 1)               │
+│  ├─ src/i18n/ru.json (Phase 1 Complete)            │
+│  ├─ src/i18n/zh.json (Phase 1 Complete)            │
+│  ├─ src/i18n/ko.json (Phase 1 Complete)            │
+│  └─ src/i18n/ja.json (Phase 1 Complete)            │
 └────────────┬─────────────────────────────────────────┘
              │
              ▼
@@ -69,17 +72,17 @@ Static Files in /dist/
 │         Page Routes (.astro files)                    │
 │  ├─ src/pages/index.astro (English, /)              │
 │  ├─ src/pages/vi.astro (Vietnamese, /vi)           │
-│  ├─ src/pages/ru.astro (PLANNED - Phase 2)         │
-│  ├─ src/pages/zh.astro (PLANNED - Phase 2)         │
-│  ├─ src/pages/ko.astro (PLANNED - Phase 2)         │
-│  └─ src/pages/ja.astro (PLANNED - Phase 2)         │
+│  ├─ src/pages/ru.astro (Russian, /ru)              │
+│  ├─ src/pages/zh.astro (Chinese, /zh)              │
+│  ├─ src/pages/ko.astro (Korean, /ko)               │
+│  └─ src/pages/ja.astro (Japanese, /ja)             │
 └────────────┬─────────────────────────────────────────┘
              │
              ▼
 ┌──────────────────────────────────────────────────────┐
 │      Component Layer (Reusable UI Components)        │
 │  ├─ Layout.astro (HTML skeleton, lang attribute)    │
-│  ├─ Navbar.astro (Navigation + language switcher)   │
+│  ├─ Navbar.astro (Dropdown + 6 languages, WCAG AA)  │
 │  ├─ Hero.astro (Hero section with animations)       │
 │  ├─ Features.astro (Features grid)                  │
 │  └─ [Other components...]                           │
@@ -90,8 +93,10 @@ Static Files in /dist/
 │          Static HTML Pages (Output)                   │
 │  ├─ dist/index.html (English)                        │
 │  ├─ dist/vi/index.html (Vietnamese)                 │
-│  ├─ dist/ru/index.html (PLANNED)                    │
-│  └─ [Other language pages...]                        │
+│  ├─ dist/ru/index.html (Russian)                    │
+│  ├─ dist/zh/index.html (Chinese)                    │
+│  ├─ dist/ko/index.html (Korean)                     │
+│  └─ dist/ja/index.html (Japanese)                   │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -104,7 +109,10 @@ Browser Request
      │
      ├─ "/" → index.astro → serves English (en.json)
      ├─ "/vi" → vi.astro → serves Vietnamese (vi.json)
-     ├─ "/ru" → ru.astro → serves Russian (ru.json) [Phase 2]
+     ├─ "/ru" → ru.astro → serves Russian (ru.json)
+     ├─ "/zh" → zh.astro → serves Chinese (zh.json)
+     ├─ "/ko" → ko.astro → serves Korean (ko.json)
+     ├─ "/ja" → ja.astro → serves Japanese (ja.json)
      └─ "/other" → 404
 ```
 
@@ -156,13 +164,16 @@ Page Component (e.g., index.astro)
 ```
 src/
 ├── pages/
-│   ├── index.astro          # English homepage
-│   └── vi.astro             # Vietnamese homepage
-│   │   (ru.astro, zh.astro, ko.astro, ja.astro - Phase 2)
+│   ├── index.astro          # English homepage (/)
+│   ├── vi.astro             # Vietnamese homepage (/vi)
+│   ├── ru.astro             # Russian homepage (/ru)
+│   ├── zh.astro             # Chinese homepage (/zh)
+│   ├── ko.astro             # Korean homepage (/ko)
+│   └── ja.astro             # Japanese homepage (/ja)
 │
 ├── components/
 │   ├── Hero.astro           # Hero section
-│   ├── Navbar.astro         # Navigation bar
+│   ├── Navbar.astro         # Navigation bar with accessible dropdown
 │   ├── Features.astro       # Features grid
 │   ├── Install.astro        # Installation section
 │   ├── FAQ.astro            # FAQ section
@@ -172,12 +183,12 @@ src/
 │   └── Layout.astro         # Main HTML template
 │
 ├── i18n/
-│   ├── en.json              # English translations
-│   ├── vi.json              # Vietnamese translations
-│   ├── ru.json              # Russian translations [Phase 1]
-│   ├── zh.json              # Chinese Simplified [Phase 1]
-│   ├── ko.json              # Korean [Phase 1]
-│   └── ja.json              # Japanese [Phase 1]
+│   ├── en.json              # English translations (complete)
+│   ├── vi.json              # Vietnamese translations (complete)
+│   ├── ru.json              # Russian translations (complete)
+│   ├── zh.json              # Chinese Simplified (complete)
+│   ├── ko.json              # Korean (complete)
+│   └── ja.json              # Japanese (complete)
 │
 └── styles/
     └── global.css           # Global styles
@@ -220,29 +231,33 @@ src/
 
 ## Navigation & Language Switching
 
-### Current Implementation (Phase 1)
+### Current Implementation (Phase 3 Complete)
+
+**All 6 language pages with dropdown navigation:**
 
 ```
-index.astro (/) ──┐
-                  │
-                  ├──> Navbar
-                  │    └─ Links to /vi (Vietnamese)
-                  │
-vi.astro (/vi) ───┤
-                  │
-                  ├──> Navbar
-                  │    └─ Links to / (English)
-                  │
-                  (ru, zh, ko, ja - TBD in Phase 2)
+Page (any language)
+     │
+     ▼
+Navbar with Accessible Dropdown
+├─ Button: Shows current language name
+├─ Keyboard shortcuts: Arrow keys, Enter, Escape
+├─ ARIA labels: aria-label, aria-expanded, role="listbox"
+└─ Options (all 6 languages):
+   ├─ English → /
+   ├─ Tiếng Việt → /vi
+   ├─ Русский → /ru
+   ├─ 简体中文 → /zh
+   ├─ 한국어 → /ko
+   └─ 日本語 → /ja
 ```
 
-### Planned Enhancement (Phase 3)
-
-```
-Navbar showing all 6 languages with current one highlighted:
-  [English] [中文] [Русский] [한국어] [日本語] [Tiếng Việt]
-   (en)      (zh)   (ru)     (ko)     (ja)   (vi)
-```
+**Accessibility Features:**
+- Current language highlighted with visual indicator
+- Focus management: trap focus within dropdown
+- Screen reader announces dropdown state & options
+- Touch targets: 44x44px minimum
+- Contrast: WCAG 2.1 AA (4.5:1 ratio)
 
 ## HTML Document Structure
 
@@ -310,20 +325,28 @@ dist/
 - Static asset optimization
 - Language-specific pages eliminate runtime detection overhead
 
-## Phase 1 Completion Status
+## Phase 1-3 Completion Status
 
-**✓ Completed:**
+**✓ Phase 1 - Completed:**
 - Russian translation (ru.json)
 - Chinese Simplified translation (zh.json)
 - Korean translation (ko.json)
 - Japanese translation (ja.json)
 
-**Pending Phase 2:**
-- Page routes for new languages
-- Navigation UI updates
-- Testing in browser
+**✓ Phase 2 - Completed:**
+- Page route ru.astro (/ru)
+- Page route zh.astro (/zh)
+- Page route ko.astro (/ko)
+- Page route ja.astro (/ja)
 
-**Pending Phase 3:**
+**✓ Phase 3 - Completed:**
+- Navbar refactored with accessible dropdown
+- All 6 languages available in dropdown
+- Current language visual indication
+- WCAG 2.1 AA accessibility compliance
+- Keyboard navigation & ARIA labels
+
+**Future Phases:**
 - Language detection logic
 - SEO hreflang tags
 - Language redirect handling
