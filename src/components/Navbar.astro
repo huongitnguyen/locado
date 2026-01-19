@@ -14,8 +14,18 @@ interface Props {
 }
 
 const { t, lang } = Astro.props;
-const otherLang = lang === 'en' ? 'vi' : 'en';
-const otherLangPath = lang === 'en' ? '/vi' : '/';
+
+// Define all supported languages
+const languages = [
+  { code: 'en', name: 'English', path: '/' },
+  { code: 'vi', name: 'Tiếng Việt', path: '/vi' },
+  { code: 'ru', name: 'Русский', path: '/ru' },
+  { code: 'zh', name: '简体中文', path: '/zh' },
+  { code: 'ko', name: '한국어', path: '/ko' },
+  { code: 'ja', name: '日本語', path: '/ja' }
+];
+
+const currentLang = languages.find(l => l.code === lang) || languages[0];
 ---
 
 <nav class="navbar fixed top-0 left-0 right-0 z-50">
@@ -34,9 +44,36 @@ const otherLangPath = lang === 'en' ? '/vi' : '/';
       <a href="https://github.com/xuandung38/locado" target="_blank" rel="noopener noreferrer" class="text-text-secondary hover:text-text-primary transition-colors">
         <ion-icon name="logo-github" class="text-xl"></ion-icon>
       </a>
-      <a href={otherLangPath} class="nav-lang-btn">
-        {otherLang.toUpperCase()}
-      </a>
+      <!-- Language Dropdown -->
+      <div class="relative lang-dropdown">
+        <button
+          id="langBtn"
+          class="nav-lang-btn flex items-center gap-1"
+          aria-label="Select language"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          {currentLang.name}
+          <ion-icon name="chevron-down-outline" class="text-sm"></ion-icon>
+        </button>
+        <div
+          id="langMenu"
+          class="lang-dropdown-menu hidden"
+          role="menu"
+          aria-label="Language options"
+        >
+          {languages.map(l => (
+            <a
+              href={l.path}
+              class={`lang-option ${l.code === currentLang.code ? 'active' : ''}`}
+              role="menuitem"
+              aria-current={l.code === currentLang.code ? 'page' : undefined}
+            >
+              {l.name}
+            </a>
+          ))}
+        </div>
+      </div>
       <!-- Theme Toggle Button -->
       <ThemeToggle />
     </div>
@@ -60,9 +97,36 @@ const otherLangPath = lang === 'en' ? '/vi' : '/';
         <a href="https://github.com/xuandung38/locado" target="_blank" rel="noopener noreferrer" class="text-text-secondary hover:text-text-primary">
           <ion-icon name="logo-github" class="text-xl"></ion-icon>
         </a>
-        <a href={otherLangPath} class="nav-lang-btn">
-          {otherLang.toUpperCase()}
-        </a>
+        <!-- Mobile Language Dropdown -->
+        <div class="relative lang-dropdown">
+          <button
+            id="mobileLangBtn"
+            class="nav-lang-btn flex items-center gap-1"
+            aria-label="Select language"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            {currentLang.name}
+            <ion-icon name="chevron-down-outline" class="text-sm"></ion-icon>
+          </button>
+          <div
+            id="mobileLangMenu"
+            class="lang-dropdown-menu hidden"
+            role="menu"
+            aria-label="Language options"
+          >
+            {languages.map(l => (
+              <a
+                href={l.path}
+                class={`lang-option ${l.code === currentLang.code ? 'active' : ''}`}
+                role="menuitem"
+                aria-current={l.code === currentLang.code ? 'page' : undefined}
+              >
+                {l.name}
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -91,15 +155,61 @@ const otherLangPath = lang === 'en' ? '/vi' : '/';
     border-radius: 0.375rem;
     border: 1px solid var(--border-color);
     transition: all 0.2s ease;
+    cursor: pointer;
   }
 
   .nav-lang-btn:hover {
     border-color: rgba(249, 115, 22, 0.5);
     background: rgba(249, 115, 22, 0.08);
   }
+
+  .lang-dropdown {
+    position: relative;
+  }
+
+  .lang-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 150px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 100;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .lang-dropdown-menu.hidden {
+    display: none;
+  }
+
+  .lang-option {
+    display: block;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .lang-option:hover {
+    background: rgba(249, 115, 22, 0.08);
+    color: var(--text-primary);
+  }
+
+  .lang-option.active {
+    color: rgba(249, 115, 22, 1);
+    font-weight: 600;
+    background: rgba(249, 115, 22, 0.08);
+  }
 </style>
 
 <script>
+  // Mobile menu toggle
   const btn = document.getElementById('mobileMenuBtn');
   const menu = document.getElementById('mobileMenu');
 
@@ -113,4 +223,71 @@ const otherLangPath = lang === 'en' ? '/vi' : '/';
       menu?.classList.add('hidden');
     });
   });
+
+  // Desktop language dropdown
+  const langBtn = document.getElementById('langBtn');
+  const langMenu = document.getElementById('langMenu');
+
+  langBtn?.addEventListener('click', (e) => {
+    // Prevent click from bubbling to document listener (which would close dropdown)
+    e.stopPropagation();
+    const isHidden = langMenu?.classList.toggle('hidden');
+    langBtn?.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+  });
+
+  // Mobile language dropdown
+  const mobileLangBtn = document.getElementById('mobileLangBtn');
+  const mobileLangMenu = document.getElementById('mobileLangMenu');
+
+  mobileLangBtn?.addEventListener('click', (e) => {
+    // Prevent click from bubbling to document listener (which would close dropdown)
+    e.stopPropagation();
+    const isHidden = mobileLangMenu?.classList.toggle('hidden');
+    mobileLangBtn?.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+  });
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Close desktop dropdown
+    if (langBtn && langMenu && !langBtn.contains(target) && !langMenu.contains(target)) {
+      langMenu.classList.add('hidden');
+      langBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    // Close mobile dropdown
+    if (mobileLangBtn && mobileLangMenu && !mobileLangBtn.contains(target) && !mobileLangMenu.contains(target)) {
+      mobileLangMenu.classList.add('hidden');
+      mobileLangBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Keyboard navigation for language dropdowns
+  const handleKeyDown = (e: KeyboardEvent, btn: HTMLElement | null, menu: HTMLElement | null) => {
+    if (!btn || !menu) return;
+
+    switch (e.key) {
+      case 'Enter':
+      case ' ': // Space
+        e.preventDefault();
+        const isHidden = menu.classList.toggle('hidden');
+        btn.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+        if (!isHidden) {
+          // Focus first menu item when opening
+          const firstItem = menu.querySelector('.lang-option') as HTMLElement;
+          firstItem?.focus();
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.focus();
+        break;
+    }
+  };
+
+  langBtn?.addEventListener('keydown', (e) => handleKeyDown(e, langBtn, langMenu));
+  mobileLangBtn?.addEventListener('keydown', (e) => handleKeyDown(e, mobileLangBtn, mobileLangMenu));
 </script>
