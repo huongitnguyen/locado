@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "title": "Locado - Менеджер локальных доменов",
+    "description": "Привязка пользовательских доменов к localhost, Docker-контейнерам или удалённым хостам со встроенной поддержкой HTTPS"
+  },
+  "nav": {
+    "features": "Возможности",
+    "install": "Установка",
+    "docs": "Документация",
+    "faq": "FAQ"
+  },
+  "hero": {
+    "title": "Менеджер локальных доменов",
+    "typingTexts": [
+      "Привязка пользовательских доменов к localhost, Docker или удалённым хостам",
+      "Встроенный HTTPS с самоподписанным CA",
+      "Множество TLD: .local, .test, .dev или пользовательские",
+      "Кроссплатформенность: macOS, Linux, Windows",
+      "Полноценный CLI с автозапуском сервиса"
+    ],
+    "installBtn": "Быстрая установка",
+    "docsBtn": "Документация"
+  },
+  "features": {
+    "title": "Возможности",
+    "items": [
+      {
+        "icon": "globe-outline",
+        "title": "Множество TLD",
+        "description": "Используйте .local, .test, .dev или любой пользовательский TLD. Настройте до 10 различных TLD для ваших доменов."
+      },
+      {
+        "icon": "lock-closed-outline",
+        "title": "Встроенный HTTPS",
+        "description": "Самоподписанный CA с установкой доверия в один клик. Не требуется внешний прокси вроде Caddy или Nginx."
+      },
+      {
+        "icon": "cube-outline",
+        "title": "Интеграция с Docker",
+        "description": "Автоматическое обнаружение запущенных контейнеров и привязка их к доменам. Работает с портами контейнеров автоматически."
+      },
+      {
+        "icon": "server-outline",
+        "title": "Удалённые хосты",
+        "description": "Прокси на удалённые IP или SSH-туннели. Доступ к внутренним сервисам через локальные домены."
+      },
+      {
+        "icon": "desktop-outline",
+        "title": "Кроссплатформенный DNS",
+        "description": "Нативная поддержка DNS: dnsmasq (macOS), systemd-resolved (Linux), Acrylic (Windows) или резервный файл hosts."
+      },
+      {
+        "icon": "terminal-outline",
+        "title": "Полноценный CLI и сервис",
+        "description": "Полный CLI с автодополнением команд. Автозапуск при загрузке через LaunchD (macOS) или systemd (Linux)."
+      }
+    ]
+  },
+  "install": {
+    "title": "Установка",
+    "subtitle": "Одна команда для начала работы",
+    "copyBtn": "Копировать",
+    "copiedBtn": "Скопировано!",
+    "commands": {
+      "install": "curl -fsSL https://locado.hxd.app/install.sh | bash",
+      "addDomain": "locado domain add myapp.local localhost:3000",
+      "startService": "locado service start"
+    }
+  },
+  "faq": {
+    "title": "FAQ",
+    "items": [
+      {
+        "question": "Требуется ли Caddy или Nginx?",
+        "answer": "Нет. Locado имеет встроенный реверс-прокси на Go с поддержкой SSL. Внешние зависимости не требуются."
+      },
+      {
+        "question": "Можно ли использовать несколько TLD?",
+        "answer": "Да! Вы можете настроить до 10 различных TLD, таких как .local, .test, .dev или любой пользовательский TLD по вашему выбору."
+      },
+      {
+        "question": "Работает ли на Windows?",
+        "answer": "Да. Locado поддерживает Windows через Acrylic DNS Proxy. Также работает на macOS (dnsmasq) и Linux (systemd-resolved)."
+      },
+      {
+        "question": "Как настроить автозапуск при загрузке?",
+        "answer": "Выполните 'locado service enable' для настройки автозапуска. Использует LaunchD на macOS и systemd на Linux."
+      },
+      {
+        "question": "Как полностью удалить программу?",
+        "answer": "Выполните 'locado uninstall --purge' для удаления всех файлов, конфигураций, настроек DNS и сертификатов."
+      },
+      {
+        "question": "Действительно ли HTTPS автоматический?",
+        "answer": "Да. Locado автоматически генерирует самоподписанный CA и сертификаты. Выполните 'locado cert trust' для добавления CA в системное хранилище ключей."
+      },
+      {
+        "question": "Бинарный файл сразу завершается после установки (macOS)?",
+        "answer": "Это вызвано карантином macOS Gatekeeper. Выполните: sudo xattr -cr /usr/local/bin/locado"
+      },
+      {
+        "question": "Настройка DNS из панели управления не работает?",
+        "answer": "DNS-операции требуют прав root. Запустите скрипт установки в терминале: curl -fsSL https://locado.hxd.app/install.sh | bash"
+      },
+      {
+        "question": "Сертификат не доверенный после установки (macOS)?",
+        "answer": "CA-сертификату может не хватать политики доверия SSL. Выполните: sudo security add-trusted-cert -d -r trustRoot -p ssl -k /Library/Keychains/System.keychain ~/.local/share/locado/certs/ca.crt"
+      }
+    ]
+  },
+  "changelog": {
+    "title": "История изменений"
+  },
+  "footer": {
+    "madeBy": "Создано с",
+    "by": "автор",
+    "author": "Hồ Xuân Dũng",
+    "links": {
+      "github": "GitHub",
+      "website": "Сайт"
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "title": "Locado - 本地域名管理器",
+    "description": "将自定义域名映射到 localhost、Docker 容器或远程主机，内置 HTTPS 支持"
+  },
+  "nav": {
+    "features": "功能特性",
+    "install": "安装",
+    "docs": "文档",
+    "faq": "常见问题"
+  },
+  "hero": {
+    "title": "本地域名管理器",
+    "typingTexts": [
+      "将自定义域名映射到 localhost、Docker 或远程主机",
+      "内置 HTTPS，使用自签名 CA",
+      "支持多个 TLD：.local、.test、.dev 或自定义",
+      "跨平台：macOS、Linux、Windows",
+      "完整的 CLI 工具，支持开机自启动"
+    ],
+    "installBtn": "快速安装",
+    "docsBtn": "查看文档"
+  },
+  "features": {
+    "title": "功能特性",
+    "items": [
+      {
+        "icon": "globe-outline",
+        "title": "多个 TLD",
+        "description": "使用 .local、.test、.dev 或任何自定义 TLD。为您的域名配置最多 10 个不同的 TLD。"
+      },
+      {
+        "icon": "lock-closed-outline",
+        "title": "内置 HTTPS",
+        "description": "自签名 CA，一键信任。无需外部代理如 Caddy 或 Nginx。"
+      },
+      {
+        "icon": "cube-outline",
+        "title": "Docker 集成",
+        "description": "自动检测运行中的容器并将它们映射到域名。自动处理容器端口。"
+      },
+      {
+        "icon": "server-outline",
+        "title": "远程主机",
+        "description": "代理到远程 IP 或 SSH 隧道。通过本地域名访问内部服务。"
+      },
+      {
+        "icon": "desktop-outline",
+        "title": "跨平台 DNS",
+        "description": "原生 DNS 支持：dnsmasq (macOS)、systemd-resolved (Linux)、Acrylic (Windows) 或 hosts 文件后备。"
+      },
+      {
+        "icon": "terminal-outline",
+        "title": "完整 CLI 和服务",
+        "description": "完整的 CLI 工具，支持 shell 自动补全。通过 LaunchD (macOS) 或 systemd (Linux) 开机自启动。"
+      }
+    ]
+  },
+  "install": {
+    "title": "安装",
+    "subtitle": "一条命令即可开始使用",
+    "copyBtn": "复制",
+    "copiedBtn": "已复制！",
+    "commands": {
+      "install": "curl -fsSL https://locado.hxd.app/install.sh | bash",
+      "addDomain": "locado domain add myapp.local localhost:3000",
+      "startService": "locado service start"
+    }
+  },
+  "faq": {
+    "title": "常见问题",
+    "items": [
+      {
+        "question": "是否需要 Caddy 或 Nginx？",
+        "answer": "不需要。Locado 内置了 Go 编写的反向代理，支持 SSL。无需外部依赖。"
+      },
+      {
+        "question": "可以使用多个 TLD 吗？",
+        "answer": "可以！您可以配置最多 10 个不同的 TLD，如 .local、.test、.dev 或您喜欢的任何自定义 TLD。"
+      },
+      {
+        "question": "支持 Windows 吗？",
+        "answer": "支持。Locado 通过 Acrylic DNS Proxy 支持 Windows。同时也支持 macOS (dnsmasq) 和 Linux (systemd-resolved)。"
+      },
+      {
+        "question": "如何设置开机自启动？",
+        "answer": "运行 'locado service enable' 配置开机自启动。在 macOS 上使用 LaunchD，在 Linux 上使用 systemd。"
+      },
+      {
+        "question": "如何完全卸载？",
+        "answer": "运行 'locado uninstall --purge' 删除所有文件、配置、DNS 设置和证书。"
+      },
+      {
+        "question": "HTTPS 真的是自动的吗？",
+        "answer": "是的。Locado 会自动生成自签名 CA 和证书。运行 'locado cert trust' 将 CA 添加到系统钥匙串。"
+      },
+      {
+        "question": "安装后二进制文件立即被终止 (macOS)？",
+        "answer": "这是由 macOS Gatekeeper 隔离引起的。运行：sudo xattr -cr /usr/local/bin/locado"
+      },
+      {
+        "question": "从控制面板设置 DNS 不起作用？",
+        "answer": "DNS 操作需要 root 权限。在终端中运行安装脚本：curl -fsSL https://locado.hxd.app/install.sh | bash"
+      },
+      {
+        "question": "安装后证书不受信任 (macOS)？",
+        "answer": "CA 证书可能缺少 SSL 信任策略。运行：sudo security add-trusted-cert -d -r trustRoot -p ssl -k /Library/Keychains/System.keychain ~/.local/share/locado/certs/ca.crt"
+      }
+    ]
+  },
+  "changelog": {
+    "title": "更新日志"
+  },
+  "footer": {
+    "madeBy": "用",
+    "by": "制作，作者",
+    "author": "Hồ Xuân Dũng",
+    "links": {
+      "github": "GitHub",
+      "website": "网站"
+    }
+  }
+}

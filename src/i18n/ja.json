@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "title": "Locado - ローカルドメインマネージャー",
+    "description": "localhost、Dockerコンテナ、またはリモートホストにカスタムドメインをマッピングし、組み込みのHTTPSをサポート"
+  },
+  "nav": {
+    "features": "機能",
+    "install": "インストール",
+    "docs": "ドキュメント",
+    "faq": "FAQ"
+  },
+  "hero": {
+    "title": "ローカルドメインマネージャー",
+    "typingTexts": [
+      "localhost、Docker、またはリモートホストにカスタムドメインをマッピング",
+      "自己署名CAによる組み込みHTTPS",
+      "複数のTLD: .local、.test、.dev、またはカスタム",
+      "クロスプラットフォーム: macOS、Linux、Windows",
+      "自動起動サービスを備えた完全なCLI"
+    ],
+    "installBtn": "クイックインストール",
+    "docsBtn": "ドキュメント"
+  },
+  "features": {
+    "title": "機能",
+    "items": [
+      {
+        "icon": "globe-outline",
+        "title": "複数のTLD",
+        "description": ".local、.test、.dev、または任意のカスタムTLDを使用できます。ドメインに最大10の異なるTLDを設定できます。"
+      },
+      {
+        "icon": "lock-closed-outline",
+        "title": "組み込みHTTPS",
+        "description": "ワンクリックで信頼できる自己署名CA。CaddyやNginxなどの外部プロキシは不要です。"
+      },
+      {
+        "icon": "cube-outline",
+        "title": "Docker統合",
+        "description": "実行中のコンテナを自動検出してドメインにマッピングします。コンテナポートと自動的に連携します。"
+      },
+      {
+        "icon": "server-outline",
+        "title": "リモートホスト",
+        "description": "リモートIPまたはSSHトンネルへのプロキシ。ローカルドメインを通じて内部サービスにアクセスできます。"
+      },
+      {
+        "icon": "desktop-outline",
+        "title": "クロスプラットフォームDNS",
+        "description": "ネイティブDNSサポート: dnsmasq (macOS)、systemd-resolved (Linux)、Acrylic (Windows)、またはhostsファイルフォールバック。"
+      },
+      {
+        "icon": "terminal-outline",
+        "title": "完全なCLIとサービス",
+        "description": "シェル補完を備えた完全なCLI。LaunchD (macOS)またはsystemd (Linux)による起動時の自動起動。"
+      }
+    ]
+  },
+  "install": {
+    "title": "インストール",
+    "subtitle": "1つのコマンドで開始",
+    "copyBtn": "コピー",
+    "copiedBtn": "コピーしました！",
+    "commands": {
+      "install": "curl -fsSL https://locado.hxd.app/install.sh | bash",
+      "addDomain": "locado domain add myapp.local localhost:3000",
+      "startService": "locado service start"
+    }
+  },
+  "faq": {
+    "title": "FAQ",
+    "items": [
+      {
+        "question": "CaddyまたはNginxは必要ですか？",
+        "answer": "いいえ。LocadoにはSSLをサポートする組み込みのGoリバースプロキシがあります。外部依存関係は不要です。"
+      },
+      {
+        "question": "複数のTLDを使用できますか？",
+        "answer": "はい！.local、.test、.dev、またはお好みのカスタムTLDなど、最大10の異なるTLDを設定できます。"
+      },
+      {
+        "question": "Windowsで動作しますか？",
+        "answer": "はい。LocadoはAcrylic DNS Proxyを通じてWindowsをサポートしています。macOS (dnsmasq)およびLinux (systemd-resolved)でも動作します。"
+      },
+      {
+        "question": "起動時の自動起動を設定するにはどうすればよいですか？",
+        "answer": "'locado service enable'を実行して自動起動を設定します。macOSではLaunchD、Linuxではsystemdを使用します。"
+      },
+      {
+        "question": "完全にアンインストールするにはどうすればよいですか？",
+        "answer": "'locado uninstall --purge'を実行して、すべてのファイル、設定、DNS設定、証明書を削除します。"
+      },
+      {
+        "question": "HTTPSは本当に自動ですか？",
+        "answer": "はい。Locadoは自己署名CAと証明書を自動的に生成します。'locado cert trust'を実行してCAをシステムキーチェーンに追加してください。"
+      },
+      {
+        "question": "インストール後にバイナリがすぐに終了します (macOS)？",
+        "answer": "これはmacOS Gatekeeperの隔離によるものです。次を実行してください: sudo xattr -cr /usr/local/bin/locado"
+      },
+      {
+        "question": "ダッシュボードからのDNS設定が機能しませんか？",
+        "answer": "DNS操作にはroot権限が必要です。ターミナルでインストールスクリプトを実行してください: curl -fsSL https://locado.hxd.app/install.sh | bash"
+      },
+      {
+        "question": "インストール後に証明書が信頼されません (macOS)？",
+        "answer": "CA証明書にSSL信頼ポリシーが欠落している可能性があります。次を実行してください: sudo security add-trusted-cert -d -r trustRoot -p ssl -k /Library/Keychains/System.keychain ~/.local/share/locado/certs/ca.crt"
+      }
+    ]
+  },
+  "changelog": {
+    "title": "変更履歴"
+  },
+  "footer": {
+    "madeBy": "作成",
+    "by": "作者",
+    "author": "Hồ Xuân Dũng",
+    "links": {
+      "github": "GitHub",
+      "website": "ウェブサイト"
+    }
+  }
+}
