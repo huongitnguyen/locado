@@ -9,3 +9,5 @@ plans/*
 #AI
 .claude/*
 CLAUDE.md
+.agent/*
+.opencode/*
