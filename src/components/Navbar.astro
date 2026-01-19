@@ -17,8 +17,8 @@ const { t, lang } = Astro.props;
 
 // Define all supported languages
 const languages = [
-  { code: 'en', name: 'English', path: '/' },
-  { code: 'vi', name: 'Tiếng Việt', path: '/vi' },
+  { code: 'vi', name: 'Tiếng Việt', path: '/' },
+  { code: 'en', name: 'English', path: '/en' },
   { code: 'ru', name: 'Русский', path: '/ru' },
   { code: 'zh', name: '简体中文', path: '/zh' },
   { code: 'ko', name: '한국어', path: '/ko' },
@@ -31,7 +31,7 @@ const currentLang = languages.find(l => l.code === lang) || languages[0];
 <nav class="navbar fixed top-0 left-0 right-0 z-50">
   <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo -->
-    <a href={lang === 'en' ? '/' : '/vi'} class="flex items-center gap-3 group">
+    <a href={lang === 'vi' ? '/' : '/en'} class="flex items-center gap-3 group">
       <img src="/logo.svg" alt="Locado Logo" class="mx-auto relative" width="32" height="32">
       <span class="text-xl font-bold gradient-text">LOCADO</span>
     </a>
