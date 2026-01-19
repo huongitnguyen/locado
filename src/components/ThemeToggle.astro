@@ -3,7 +3,6 @@
 ---
 
 <button
-  id="theme-toggle"
   class="theme-toggle"
   aria-label="Toggle theme"
   title="Toggle light/dark mode"
@@ -15,9 +14,7 @@
 </button>
 
 <script>
-  // Theme toggle functionality
-  const themeToggle = document.getElementById('theme-toggle');
-  
+  // Theme toggle functionality using class-based delegation
   // Check for saved theme preference or default to system preference
   function getThemePreference(): 'dark' | 'light' {
     const storedTheme = localStorage.getItem('theme');
@@ -35,7 +32,7 @@
       document.documentElement.classList.remove('dark');
     }
     localStorage.setItem('theme', theme);
-    
+
     // Update meta theme-color
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
@@ -43,14 +40,19 @@
     }
   }
 
-  // Initialize theme
+  // Initialize theme on page load
   setTheme(getThemePreference());
 
-  // Toggle theme on button click
-  themeToggle?.addEventListener('click', () => {
-    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
+  // Add event delegation for all theme toggle buttons
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const toggleBtn = target.closest('.theme-toggle');
+
+    if (toggleBtn) {
+      const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+    }
   });
 
   // Listen for system theme changes
