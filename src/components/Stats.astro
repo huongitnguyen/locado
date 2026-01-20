@@ -1,0 +1,211 @@
+---
+interface Props {
+  t: {
+    stats: {
+      title: string;
+      totalDownloads: string;
+      byPlatform: string;
+      byVersion: string;
+      latest: string;
+      platforms: {
+        macos: string;
+        linux: string;
+        windows: string;
+      };
+    };
+  };
+}
+
+const { t } = Astro.props;
+---
+
+<section id="stats" class="py-20 px-4 section-dots">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 animate-fade-in-up">
+      <span class="gradient-text">{t.stats.title}</span>
+    </h2>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+      <!-- Total Downloads -->
+      <div class="card text-center animate-fade-in-up animate-delay-100">
+        <div class="text-3xl md:text-4xl font-bold gradient-text mb-1" id="stats-total">
+          <span class="skeleton-box"></span>
+        </div>
+        <div class="text-sm text-text-secondary">{t.stats.totalDownloads}</div>
+      </div>
+      
+      <!-- macOS -->
+      <div class="card text-center animate-fade-in-up animate-delay-200">
+        <div class="flex justify-center mb-2">
+          <ion-icon name="logo-apple" class="text-2xl text-text-secondary"></ion-icon>
+        </div>
+        <div class="text-2xl font-bold text-text-primary" id="stats-macos">
+          <span class="skeleton-box"></span>
+        </div>
+        <div class="text-sm text-text-secondary">{t.stats.platforms.macos}</div>
+      </div>
+      
+      <!-- Linux -->
+      <div class="card text-center animate-fade-in-up animate-delay-300">
+        <div class="flex justify-center mb-2">
+          <ion-icon name="logo-tux" class="text-2xl text-text-secondary"></ion-icon>
+        </div>
+        <div class="text-2xl font-bold text-text-primary" id="stats-linux">
+          <span class="skeleton-box"></span>
+        </div>
+        <div class="text-sm text-text-secondary">{t.stats.platforms.linux}</div>
+      </div>
+      
+      <!-- Windows -->
+      <div class="card text-center animate-fade-in-up animate-delay-400">
+        <div class="flex justify-center mb-2">
+          <ion-icon name="logo-windows" class="text-2xl text-text-secondary"></ion-icon>
+        </div>
+        <div class="text-2xl font-bold text-text-primary" id="stats-windows">
+          <span class="skeleton-box"></span>
+        </div>
+        <div class="text-sm text-text-secondary">{t.stats.platforms.windows}</div>
+      </div>
+    </div>
+
+    <!-- Version Breakdown -->
+    <div class="card animate-fade-in-up animate-delay-500">
+      <h3 class="text-lg font-semibold mb-4 text-text-primary">{t.stats.byVersion}</h3>
+      <div class="space-y-4" id="stats-versions">
+        <!-- Skeleton loading for versions -->
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div class="flex items-center gap-4 skeleton-version">
+            <span class="w-28 h-4 skeleton-box rounded"></span>
+            <div class="flex-1 h-3 bg-bg-tertiary rounded-full overflow-hidden">
+              <div class="h-full skeleton-bar rounded-full" style={`width: ${100 - i * 15}%`}></div>
+            </div>
+            <span class="w-12 h-4 skeleton-box rounded"></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .skeleton-box {
+    background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    height: 1.5em;
+    min-width: 3em;
+    display: inline-block;
+  }
+  
+  .skeleton-bar {
+    background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  .stats-loaded .skeleton-box,
+  .stats-loaded .skeleton-bar,
+  .stats-loaded .skeleton-version {
+    display: none;
+  }
+</style>
+
+<script>
+  interface StatsData {
+    total: number;
+    byPlatform: Record<string, number>;
+    byVersion: Record<string, number>;
+    collectedAt: number;
+  }
+
+  async function updateStats() {
+    try {
+      const res = await fetch('/api/stats');
+      if (!res.ok) return;
+      
+      const data: StatsData = await res.json();
+      
+      // Update total
+      const totalEl = document.getElementById('stats-total');
+      if (totalEl) totalEl.textContent = data.total.toLocaleString();
+      
+      // Calculate platform aggregates
+      const macos = (data.byPlatform['darwin-arm64'] || 0) + (data.byPlatform['darwin-amd64'] || 0);
+      const linux = (data.byPlatform['linux-arm64'] || 0) + (data.byPlatform['linux-amd64'] || 0);
+      const windows = data.byPlatform['windows-amd64'] || 0;
+      
+      // Update platform cards
+      const macosEl = document.getElementById('stats-macos');
+      const linuxEl = document.getElementById('stats-linux');
+      const windowsEl = document.getElementById('stats-windows');
+      
+      if (macosEl) macosEl.textContent = macos.toLocaleString();
+      if (linuxEl) linuxEl.textContent = linux.toLocaleString();
+      if (windowsEl) windowsEl.textContent = windows.toLocaleString();
+      
+      // Update version breakdown
+      updateVersionBars(data.byVersion);
+      
+    } catch (e) {
+      console.error('Failed to fetch stats:', e);
+      // Show error state
+      const totalEl = document.getElementById('stats-total');
+      if (totalEl) totalEl.textContent = '---';
+    }
+  }
+  
+  function updateVersionBars(byVersion: Record<string, number>) {
+    const container = document.getElementById('stats-versions');
+    if (!container) return;
+    
+    // Sort versions by downloads (descending) and take top 5
+    const sorted = Object.entries(byVersion)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5);
+    
+    if (sorted.length === 0) {
+      container.innerHTML = '<p class="text-text-secondary text-center py-4">No download data available</p>';
+      return;
+    }
+    
+    const maxDownloads = sorted[0][1] || 1;
+    
+    // Get translation for "latest" from data attribute or default
+    const latestText = container.dataset.latestText || 'latest';
+    
+    container.innerHTML = sorted.map(([version, count], index) => {
+      const percentage = (count / maxDownloads) * 100;
+      const isLatest = index === 0;
+      
+      return `
+        <div class="flex items-center gap-4">
+          <span class="w-28 font-mono text-sm text-text-secondary truncate">${escapeHtml(version)}</span>
+          <div class="flex-1 h-3 bg-bg-tertiary rounded-full overflow-hidden">
+            <div 
+              class="h-full bg-gradient-to-r from-accent-orange to-accent-red rounded-full transition-all duration-500"
+              style="width: ${percentage}%"
+            ></div>
+          </div>
+          <span class="w-16 text-right font-mono text-sm text-text-primary">${count.toLocaleString()}</span>
+          ${isLatest ? `<span class="px-2 py-0.5 text-xs bg-accent-amber/20 text-accent-amber rounded">${latestText}</span>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+  
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  // Run on page load
+  updateStats();
+</script>

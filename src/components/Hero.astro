@@ -1,4 +1,6 @@
 ---
+import DownloadBadge from './DownloadBadge.astro';
+
 interface Props {
   t: {
     hero: {
@@ -6,6 +8,9 @@ interface Props {
       typingTexts: string[];
       installBtn: string;
       docsBtn: string;
+    };
+    stats?: {
+      totalDownloads?: string;
     };
   };
 }
@@ -19,9 +24,14 @@ const { t } = Astro.props;
   
   <div class="max-w-4xl mx-auto text-center relative z-10">
     <!-- Logo Icon with glow -->
-    <div class="mb-10 animate-fade-in-up relative">
+    <div class="mb-6 animate-fade-in-up relative">
       <div class="absolute inset-0 blur-2xl bg-gradient-to-r from-accent-orange/30 to-accent-red/30 rounded-full scale-150"></div>
       <img src="/logo.svg" alt="Locado Logo" class="mx-auto relative" width="100" height="100">
+    </div>
+
+    <!-- Download Badge -->
+    <div class="mb-8 flex justify-center">
+      <DownloadBadge t={t} />
     </div>
 
     <!-- Title -->

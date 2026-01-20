@@ -1,0 +1,65 @@
+---
+interface Props {
+  t: {
+    stats?: {
+      totalDownloads?: string;
+    };
+  };
+}
+
+const { t } = Astro.props;
+---
+
+<div 
+  id="download-badge" 
+  class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium animate-fade-in-up"
+  style="background: var(--glass-bg); border: 1px solid var(--glass-border);"
+>
+  <ion-icon name="download-outline" class="text-accent-orange"></ion-icon>
+  <span id="download-count" class="font-mono">
+    <!-- Skeleton loading -->
+    <span class="skeleton-text w-12 inline-block"></span>
+  </span>
+  <span class="text-text-secondary">{t.stats?.totalDownloads || 'downloads'}</span>
+</div>
+
+<style>
+  .skeleton-text {
+    background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    height: 1em;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+
+<script>
+  async function updateDownloadBadge() {
+    try {
+      const res = await fetch('/api/stats');
+      if (!res.ok) return;
+      
+      const data = await res.json();
+      const el = document.getElementById('download-count');
+      
+      if (el && data.total !== undefined) {
+        el.innerHTML = data.total.toLocaleString();
+        el.classList.add('loaded');
+      }
+    } catch (e) {
+      // Silent fail - keep skeleton or show nothing
+      const el = document.getElementById('download-count');
+      if (el) el.innerHTML = '---';
+    }
+  }
+  
+  // Run on page load
+  updateDownloadBadge();
+</script>

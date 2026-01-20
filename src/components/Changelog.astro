@@ -3,90 +3,41 @@ interface Props {
   t: {
     changelog: {
       title: string;
+      viewAll?: string;
     };
   };
 }
 
 const { t } = Astro.props;
-
-// Fetch releases from GitHub API
-interface GitHubRelease {
-  tag_name: string;
-  published_at: string;
-  body: string;
-  html_url: string;
-}
-
-let releases: { version: string; date: string; changes: string[]; url: string }[] = [];
-
-try {
-  const response = await fetch('https://api.github.com/repos/xuandung38/locado/releases', {
-    headers: {
-      'Accept': 'application/vnd.github.v3+json',
-      'User-Agent': 'Locado-Landing'
-    }
-  });
-
-  if (response.ok) {
-    const data: GitHubRelease[] = await response.json();
-    releases = data.slice(0, 5).map(release => {
-      // Parse changelog from release body
-      const lines = release.body.split('\n');
-      const changes: string[] = [];
-
-      for (const line of lines) {
-        // Extract bullet points that start with "- "
-        const trimmed = line.trim();
-        if (trimmed.startsWith('- ') && !trimmed.includes('|')) {
-          changes.push(trimmed.substring(2));
-        }
-      }
-
-      return {
-        version: release.tag_name,
-        date: new Date(release.published_at).toISOString().split('T')[0],
-        changes: changes.length > 0 ? changes : ['Bug fixes and improvements'],
-        url: release.html_url
-      };
-    });
-  }
-} catch (error) {
-  console.error('Failed to fetch releases:', error);
-}
 ---
 
-<section class="py-20 px-4 section-mesh">
+<section id="changelog" class="py-20 px-4 section-mesh">
   <div class="max-w-3xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">
       <span class="gradient-text">{t.changelog.title}</span>
     </h2>
 
-    {releases.length > 0 ? (
-      <div class="space-y-8">
-        {releases.map((release) => (
-          <div class="card">
-            <div class="flex items-center gap-4 mb-4">
-              <a href={release.url} target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-gradient-to-r from-accent-orange to-accent-red text-white text-sm font-mono rounded hover:opacity-80 transition-opacity">
-                {release.version}
-              </a>
-              <span class="text-text-secondary text-sm">{release.date}</span>
-            </div>
-            <ul class="space-y-2">
-              {release.changes.map((change) => (
-                <li class="flex items-start gap-2 text-text-secondary">
-                  <ion-icon name="checkmark-circle" class="text-accent-amber mt-1 flex-shrink-0"></ion-icon>
-                  <span>{change}</span>
-                </li>
-              ))}
-            </ul>
+    <div id="changelog-container" class="space-y-8">
+      <!-- Skeleton loading for releases -->
+      {[1, 2, 3].map((i) => (
+        <div class="card changelog-skeleton">
+          <div class="flex items-center gap-4 mb-4">
+            <span class="w-24 h-6 skeleton-box rounded"></span>
+            <span class="w-20 h-4 skeleton-box rounded"></span>
           </div>
-        ))}
-      </div>
-    ) : (
-      <div class="card text-center text-text-secondary">
-        <p>Loading releases...</p>
-      </div>
-    )}
+          <div class="space-y-2">
+            <div class="flex items-start gap-2">
+              <span class="w-5 h-5 skeleton-box rounded-full flex-shrink-0"></span>
+              <span class="flex-1 h-4 skeleton-box rounded"></span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="w-5 h-5 skeleton-box rounded-full flex-shrink-0"></span>
+              <span class="flex-1 h-4 skeleton-box rounded" style={`width: ${80 - i * 10}%`}></span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
 
     <div class="text-center mt-8">
       <a
@@ -95,8 +46,81 @@ try {
         class="text-accent-amber hover:text-accent-orange transition-colors inline-flex items-center gap-2"
       >
         <ion-icon name="logo-github"></ion-icon>
-        View all releases on GitHub
+        {t.changelog.viewAll || 'View all releases on GitHub'}
       </a>
     </div>
   </div>
 </section>
+
+<style>
+  .skeleton-box {
+    background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    display: inline-block;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+
+<script>
+  interface Release {
+    version: string;
+    name: string;
+    date: string;
+    changes: string[];
+    url: string;
+    downloads: number;
+  }
+
+  async function updateChangelog() {
+    const container = document.getElementById('changelog-container');
+    if (!container) return;
+
+    try {
+      const res = await fetch('/api/releases');
+      if (!res.ok) throw new Error('Failed to fetch');
+      
+      const data = await res.json();
+      if (!data.releases || data.releases.length === 0) {
+        container.innerHTML = '<div class="card text-center text-text-secondary"><p>No releases available</p></div>';
+        return;
+      }
+
+      // Build new HTML
+      container.innerHTML = data.releases.slice(0, 5).map((release: Release) => `
+        <div class="card">
+          <div class="flex items-center gap-4 mb-4">
+            <a href="${escapeHtml(release.url)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-gradient-to-r from-accent-orange to-accent-red text-white text-sm font-mono rounded hover:opacity-80 transition-opacity">
+              ${escapeHtml(release.version)}
+            </a>
+            <span class="text-text-secondary text-sm">${escapeHtml(release.date)}</span>
+          </div>
+          <ul class="space-y-2">
+            ${release.changes.map((change: string) => `
+              <li class="flex items-start gap-2 text-text-secondary">
+                <ion-icon name="checkmark-circle" class="text-accent-amber mt-1 flex-shrink-0"></ion-icon>
+                <span>${escapeHtml(change)}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error('Failed to fetch releases:', e);
+      container.innerHTML = '<div class="card text-center text-text-secondary"><p>Failed to load releases</p></div>';
+    }
+  }
+
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Run on page load
+  updateChangelog();
+</script>
