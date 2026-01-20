@@ -112,8 +112,21 @@
       }
     ]
   },
+  "stats": {
+    "title": "Download Statistics",
+    "totalDownloads": "downloads",
+    "byPlatform": "By Platform",
+    "byVersion": "By Version",
+    "latest": "latest",
+    "platforms": {
+      "macos": "macOS",
+      "linux": "Linux",
+      "windows": "Windows"
+    }
+  },
   "changelog": {
-    "title": "Changelog"
+    "title": "Changelog",
+    "viewAll": "View all releases on GitHub"
   },
   "footer": {
     "madeBy": "Made with",

@@ -112,8 +112,21 @@
       }
     ]
   },
+  "stats": {
+    "title": "다운로드 통계",
+    "totalDownloads": "다운로드",
+    "byPlatform": "플랫폼별",
+    "byVersion": "버전별",
+    "latest": "최신",
+    "platforms": {
+      "macos": "macOS",
+      "linux": "Linux",
+      "windows": "Windows"
+    }
+  },
   "changelog": {
-    "title": "변경 로그"
+    "title": "변경 로그",
+    "viewAll": "GitHub에서 모든 릴리스 보기"
   },
   "footer": {
     "madeBy": "제작",

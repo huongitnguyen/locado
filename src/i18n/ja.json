@@ -112,8 +112,21 @@
       }
     ]
   },
+  "stats": {
+    "title": "ダウンロード統計",
+    "totalDownloads": "ダウンロード",
+    "byPlatform": "プラットフォーム別",
+    "byVersion": "バージョン別",
+    "latest": "最新",
+    "platforms": {
+      "macos": "macOS",
+      "linux": "Linux",
+      "windows": "Windows"
+    }
+  },
   "changelog": {
-    "title": "変更履歴"
+    "title": "変更履歴",
+    "viewAll": "GitHubで全リリースを見る"
   },
   "footer": {
     "madeBy": "作成",

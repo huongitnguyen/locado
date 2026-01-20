@@ -112,8 +112,21 @@
       }
     ]
   },
+  "stats": {
+    "title": "Статистика загрузок",
+    "totalDownloads": "загрузок",
+    "byPlatform": "По платформам",
+    "byVersion": "По версиям",
+    "latest": "последняя",
+    "platforms": {
+      "macos": "macOS",
+      "linux": "Linux",
+      "windows": "Windows"
+    }
+  },
   "changelog": {
-    "title": "История изменений"
+    "title": "История изменений",
+    "viewAll": "Смотреть все релизы на GitHub"
   },
   "footer": {
     "madeBy": "Создано с",

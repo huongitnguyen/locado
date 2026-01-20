@@ -112,8 +112,21 @@
       }
     ]
   },
+  "stats": {
+    "title": "Thống kê tải xuống",
+    "totalDownloads": "lượt tải",
+    "byPlatform": "Theo nền tảng",
+    "byVersion": "Theo phiên bản",
+    "latest": "mới nhất",
+    "platforms": {
+      "macos": "macOS",
+      "linux": "Linux",
+      "windows": "Windows"
+    }
+  },
   "changelog": {
-    "title": "Lịch sử phiên bản"
+    "title": "Lịch sử phiên bản",
+    "viewAll": "Xem tất cả phiên bản trên GitHub"
   },
   "footer": {
     "madeBy": "Được tạo với",

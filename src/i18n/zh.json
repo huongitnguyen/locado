@@ -108,8 +108,21 @@
       }
     ]
   },
+  "stats": {
+    "title": "下载统计",
+    "totalDownloads": "次下载",
+    "byPlatform": "按平台",
+    "byVersion": "按版本",
+    "latest": "最新",
+    "platforms": {
+      "macos": "macOS",
+      "linux": "Linux",
+      "windows": "Windows"
+    }
+  },
   "changelog": {
-    "title": "更新日志"
+    "title": "更新日志",
+    "viewAll": "在 GitHub 上查看所有版本"
   },
   "footer": {
     "madeBy": "用",
