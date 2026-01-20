@@ -1,0 +1,23 @@
+# Scheduled Worker for collecting GitHub stats
+# Deploy separately: cd workers/stats-collector && wrangler deploy
+
+name = "locado-stats-collector"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Cron trigger - runs every 6 hours
+[triggers]
+crons = ["0 */6 * * *"]
+
+# Environment variables
+[vars]
+GITHUB_OWNER = "xuandung38"
+GITHUB_REPO = "locado"
+
+# KV namespace binding
+# IMPORTANT: Use the SAME KV namespace ID as the main landing page
+# Create with: wrangler kv:namespace create STATS_KV
+# Then update the ID below
+[[kv_namespaces]]
+binding = "STATS_KV"
+id = "your-kv-namespace-id-here"
