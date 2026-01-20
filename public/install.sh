@@ -63,7 +63,28 @@ case "$OS" in
     info "Detected Linux"
     ;;
   mingw*|msys*|cygwin*)
-    error "Windows is not supported via this script. Please download manually from GitHub releases."
+    info "Windows detected!"
+    echo ""
+    echo "This bash script is for macOS and Linux only."
+    echo "For Windows, please use the PowerShell installation script instead:"
+    echo ""
+    echo "  Method 1: Run the batch wrapper (easiest)"
+    echo "    1. Download install.bat from GitHub"
+    echo "    2. Double-click install.bat"
+    echo ""
+    echo "  Method 2: Run PowerShell script directly"
+    echo "    1. Download install.ps1 from GitHub"
+    echo "    2. Right-click PowerShell -> Run as Administrator"
+    echo "    3. Execute: Set-ExecutionPolicy Bypass -Scope Process"
+    echo "    4. Execute: .\\install.ps1"
+    echo ""
+    echo "  Method 3: One-line install (requires internet)"
+    echo "    Run in PowerShell as Administrator:"
+    echo "    Invoke-WebRequest -Uri https://locado.hxd.app/install.ps1 -OutFile install.ps1; .\\install.ps1"
+    echo ""
+    echo "For more information, visit: https://locado.hxd.app/docs/installation-windows"
+    echo ""
+    exit 0
     ;;
   *)
     error "Unsupported operating system: $OS"
@@ -399,9 +420,9 @@ echo ""
 if [ "$UPGRADE_MODE" = true ]; then
     printf "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}\n"
     printf "${GREEN}║                                                           ║${NC}\n"
-    printf "${GREEN}║         Locado upgraded to %-7s successfully!          ║${NC}\n" "$VERSION"
+    printf "${GREEN}║         Locado upgraded to %-7s successfully!             ║${NC}\n" "$VERSION"
     printf "${GREEN}║                                                           ║${NC}\n"
-    printf "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}\n"
+    printf "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}\n"ß
     echo ""
     printf "  Previous version: ${YELLOW}$OLD_VERSION${NC}\n"
     printf "  Backup available: ${YELLOW}$INSTALL_DIR/locado.bak${NC}\n"
@@ -413,7 +434,7 @@ if [ "$UPGRADE_MODE" = true ]; then
 else
     printf "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}\n"
     printf "${GREEN}║                                                           ║${NC}\n"
-    printf "${GREEN}║          Locado %-7s installed successfully!           ║${NC}\n" "$VERSION"
+    printf "${GREEN}║          Locado %-7s installed successfully!              ║${NC}\n" "$VERSION"
     printf "${GREEN}║                                                           ║${NC}\n"
     printf "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}\n"
     echo ""
