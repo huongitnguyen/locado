@@ -105,6 +105,10 @@
       {
         "question": "Certificate không được trust sau khi cài đặt (macOS)?",
         "answer": "CA certificate có thể thiếu SSL trust policy. Chạy lệnh: sudo security add-trusted-cert -d -r trustRoot -p ssl -k /Library/Keychains/System.keychain ~/.local/share/locado/certs/ca.crt"
+      },
+      {
+        "question": "Lỗi khi mở ứng dụng trên macOS (App is damaged)?",
+        "answer": "Do cơ chế bảo mật Gatekeeper của macOS. Bạn hãy chạy lệnh sau trong Terminal: `sudo xattr -rd com.apple.quarantine \"/Applications/Locado.app\"`"
       }
     ]
   },

@@ -105,6 +105,10 @@
       {
         "question": "설치 후 인증서가 신뢰되지 않습니다 (macOS)?",
         "answer": "CA 인증서에 SSL 신뢰 정책이 누락되었을 수 있습니다. 다음을 실행하세요: sudo security add-trusted-cert -d -r trustRoot -p ssl -k /Library/Keychains/System.keychain ~/.local/share/locado/certs/ca.crt"
+      },
+      {
+        "question": "macOS에서 앱을 열 때 오류가 발생합니까 (App is damaged)?",
+        "answer": "macOS Gatekeeper 보안 메커니즘 때문입니다. 터미널에서 다음 명령을 실행하십시오: `sudo xattr -rd com.apple.quarantine \"/Applications/Locado.app\"`"
       }
     ]
   },

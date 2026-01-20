@@ -105,6 +105,10 @@
       {
         "question": "Certificate not trusted after install (macOS)?",
         "answer": "The CA certificate may be missing SSL trust policy. Run: sudo security add-trusted-cert -d -r trustRoot -p ssl -k /Library/Keychains/System.keychain ~/.local/share/locado/certs/ca.crt"
+      },
+      {
+        "question": "Error when opening app on macOS (App is damaged)?",
+        "answer": "Due to macOS Gatekeeper security mechanism. Please run the following command in Terminal: `sudo xattr -rd com.apple.quarantine \"/Applications/Locado.app\"`"
       }
     ]
   },

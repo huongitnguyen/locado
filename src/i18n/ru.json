@@ -105,6 +105,10 @@
       {
         "question": "Сертификат не доверенный после установки (macOS)?",
         "answer": "CA-сертификату может не хватать политики доверия SSL. Выполните: sudo security add-trusted-cert -d -r trustRoot -p ssl -k /Library/Keychains/System.keychain ~/.local/share/locado/certs/ca.crt"
+      },
+      {
+        "question": "Ошибка при открытии приложения на macOS (App is damaged)?",
+        "answer": "Из-за механизма безопасности macOS Gatekeeper. Пожалуйста, выполните следующую команду в терминале: `sudo xattr -rd com.apple.quarantine \"/Applications/Locado.app\"`"
       }
     ]
   },
