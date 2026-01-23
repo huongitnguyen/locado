@@ -141,7 +141,7 @@ export function getCorsHeaders(request: Request, env: Env): Record<string, strin
  */
 export function parseChangelog(body: string | null): string[] {
   if (!body) return ['Bug fixes and improvements'];
-  
+
   const lines = body.split('\n');
   const changes: string[] = [];
 
@@ -154,4 +154,48 @@ export function parseChangelog(body: string | null): string[] {
   }
 
   return changes.length > 0 ? changes : ['Bug fixes and improvements'];
+}
+
+// KV cache keys and TTL
+export const KV_STATS_KEY = 'github-stats-cache';
+export const KV_RELEASES_KEY = 'github-releases-cache';
+const STALE_TTL = 86400; // 24 hours
+
+interface KVCacheEntry<T> {
+  data: T;
+  savedAt: number;
+}
+
+/**
+ * Save data to KV storage (non-blocking)
+ */
+export async function saveToKV<T>(
+  kv: KVNamespace | undefined,
+  key: string,
+  data: T
+): Promise<void> {
+  if (!kv) return;
+  try {
+    const entry: KVCacheEntry<T> = { data, savedAt: Date.now() };
+    await kv.put(key, JSON.stringify(entry), { expirationTtl: STALE_TTL });
+  } catch (e) {
+    console.error('KV save failed:', e);
+  }
+}
+
+/**
+ * Load data from KV storage
+ */
+export async function loadFromKV<T>(
+  kv: KVNamespace | undefined,
+  key: string
+): Promise<KVCacheEntry<T> | null> {
+  if (!kv) return null;
+  try {
+    const cached = await kv.get(key);
+    if (cached) return JSON.parse(cached) as KVCacheEntry<T>;
+  } catch (e) {
+    console.error('KV load failed:', e);
+  }
+  return null;
 }

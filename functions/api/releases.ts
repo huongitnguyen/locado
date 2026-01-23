@@ -1,11 +1,12 @@
 /// <reference types="@cloudflare/workers-types" />
-import type { Env, ReleasesResponse, ApiErrorResponse } from './_shared/types';
-import { fetchReleasesWithCache, getCorsHeaders, parseChangelog, GitHubRateLimitError } from './_shared/github';
+import type { Env, ReleasesResponse, ReleasesResponseWithStale } from './_shared/types';
+import { fetchReleasesWithCache, getCorsHeaders, parseChangelog, GitHubRateLimitError, saveToKV, loadFromKV, KV_RELEASES_KEY } from './_shared/github';
+import { FALLBACK_RELEASES } from './_shared/fallback-data';
 
 // Handle CORS preflight
 export const onRequestOptions: PagesFunction<Env> = async ({ request, env }) => {
-  return new Response(null, { 
-    headers: getCorsHeaders(request, env) 
+  return new Response(null, {
+    headers: getCorsHeaders(request, env)
   });
 };
 
@@ -19,7 +20,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
     const response: ReleasesResponse = {
       releases: releases.slice(0, 10).map(release => {
         const downloads = release.assets.reduce(
-          (sum, asset) => sum + asset.download_count, 
+          (sum, asset) => sum + asset.download_count,
           0
         );
 
@@ -35,9 +36,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
       collectedAt: Date.now()
     };
 
+    // Save to KV for fallback (non-blocking)
+    waitUntil(saveToKV(env.STATS_KV, KV_RELEASES_KEY, response));
+
     return new Response(JSON.stringify(response), {
-      headers: { 
-        ...corsHeaders, 
+      headers: {
+        ...corsHeaders,
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=120'
       }
@@ -45,34 +49,29 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
   } catch (error) {
     console.error('Failed to fetch releases:', error);
 
-    // Handle rate limit error with 429 status
-    if (error instanceof GitHubRateLimitError) {
-      const retryAfter = error.getRetryAfter();
-      const errorResponse: ApiErrorResponse = {
-        error: 'Rate limit exceeded',
-        code: 'RATE_LIMITED',
-        retryAfter
+    // Try KV cache first (stale data is better than error)
+    const cached = await loadFromKV<ReleasesResponse>(env.STATS_KV, KV_RELEASES_KEY);
+    if (cached) {
+      const staleResponse: ReleasesResponseWithStale = {
+        ...cached.data,
+        isStale: true,
+        staleAt: cached.savedAt
       };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 429,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-          'Retry-After': String(retryAfter)
-        }
+      return new Response(JSON.stringify(staleResponse), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // Handle other GitHub/fetch errors with 503
-    // Only expose error details in development (not on production origin)
-    const isDev = !request.url.includes('locado.hxd.app');
-    const errorResponse: ApiErrorResponse = {
-      error: 'Service temporarily unavailable',
-      code: 'GITHUB_ERROR',
-      ...(isDev && { details: error instanceof Error ? error.message : 'Unknown error' })
+    // Final fallback - static data
+    const fallbackResponse: ReleasesResponseWithStale = {
+      ...FALLBACK_RELEASES,
+      collectedAt: Date.now(),
+      isStale: true,
+      staleAt: 0
     };
-    return new Response(JSON.stringify(errorResponse), {
-      status: 503,
+    return new Response(JSON.stringify(fallbackResponse), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }

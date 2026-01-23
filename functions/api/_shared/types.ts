@@ -81,3 +81,14 @@ export interface ApiErrorResponse {
   retryAfter?: number; // seconds until retry
   details?: string;
 }
+
+// Stale data indicator for fallback responses
+export interface StaleIndicator {
+  isStale?: boolean;
+  staleAt?: number;
+  originalError?: string;
+}
+
+// Response types with stale indicator support
+export interface DownloadStatsResponse extends DownloadStats, StaleIndicator {}
+export interface ReleasesResponseWithStale extends ReleasesResponse, StaleIndicator {}
