@@ -122,11 +122,24 @@
       "macos": "macOS",
       "linux": "Linux",
       "windows": "Windows"
-    }
+    },
+    "error": "統計を読み込めません",
+    "stale": "データが古い可能性があります",
+    "retry": "再試行",
+    "noData": "ダウンロードデータがありません"
   },
   "changelog": {
     "title": "変更履歴",
-    "viewAll": "GitHubで全リリースを見る"
+    "viewAll": "GitHubで全リリースを見る",
+    "error": "リリースを読み込めません",
+    "stale": "データが古い可能性があります",
+    "retry": "再試行",
+    "noData": "リリースがありません"
+  },
+  "sponsor": {
+    "title": "Locadoをサポート",
+    "description": "Locadoがあなたのワークフローに役立つ場合は、開発をスポンサーすることを検討してください",
+    "button": "GitHubでスポンサー"
   },
   "footer": {
     "madeBy": "作成",

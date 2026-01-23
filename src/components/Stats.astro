@@ -12,6 +12,10 @@ interface Props {
         linux: string;
         windows: string;
       };
+      error: string;
+      stale: string;
+      retry: string;
+      noData: string;
     };
   };
 }
@@ -19,7 +23,14 @@ interface Props {
 const { t } = Astro.props;
 ---
 
-<section id="stats" class="py-20 px-4 section-dots">
+<section
+  id="stats"
+  class="py-20 px-4 section-dots"
+  data-error-text={t.stats.error}
+  data-stale-text={t.stats.stale}
+  data-retry-text={t.stats.retry}
+  data-no-data-text={t.stats.noData}
+>
   <div class="max-w-4xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 animate-fade-in-up">
       <span class="gradient-text">{t.stats.title}</span>
@@ -115,6 +126,21 @@ const { t } = Astro.props;
   .stats-loaded .skeleton-version {
     display: none;
   }
+
+  .stale-indicator {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
 
 <script>
@@ -123,41 +149,83 @@ const { t } = Astro.props;
     byPlatform: Record<string, number>;
     byVersion: Record<string, number>;
     collectedAt: number;
+    isStale?: boolean;
+    staleAt?: number;
   }
 
   async function updateStats() {
+    const section = document.getElementById('stats');
+    const errorText = section?.dataset.errorText || 'Unable to load statistics';
+    const staleText = section?.dataset.staleText || 'Data may be outdated';
+    const retryText = section?.dataset.retryText || 'Retry';
+
     try {
       const res = await fetch('/api/stats');
-      if (!res.ok) return;
-      
       const data: StatsData = await res.json();
-      
+
+      // Handle error response (429, 503) - only error if no stale data
+      if (!res.ok && !data.isStale) {
+        showError(errorText, retryText);
+        return;
+      }
+
+      // Show stale indicator if data is stale
+      if (data.isStale) {
+        showStaleIndicator(staleText);
+      }
+
       // Update total
       const totalEl = document.getElementById('stats-total');
       if (totalEl) totalEl.textContent = data.total.toLocaleString();
-      
+
       // Calculate platform aggregates
       const macos = (data.byPlatform['darwin-arm64'] || 0) + (data.byPlatform['darwin-amd64'] || 0);
       const linux = (data.byPlatform['linux-arm64'] || 0) + (data.byPlatform['linux-amd64'] || 0);
       const windows = data.byPlatform['windows-amd64'] || 0;
-      
+
       // Update platform cards
       const macosEl = document.getElementById('stats-macos');
       const linuxEl = document.getElementById('stats-linux');
       const windowsEl = document.getElementById('stats-windows');
-      
+
       if (macosEl) macosEl.textContent = macos.toLocaleString();
       if (linuxEl) linuxEl.textContent = linux.toLocaleString();
       if (windowsEl) windowsEl.textContent = windows.toLocaleString();
-      
+
       // Update version breakdown
       updateVersionBars(data.byVersion);
-      
+
     } catch (e) {
       console.error('Failed to fetch stats:', e);
-      // Show error state
-      const totalEl = document.getElementById('stats-total');
-      if (totalEl) totalEl.textContent = '---';
+      showError(errorText, retryText);
+    }
+  }
+
+  function showStaleIndicator(text: string) {
+    const section = document.getElementById('stats');
+    const existing = section?.querySelector('.stale-indicator');
+    if (existing) return;
+
+    const indicator = document.createElement('div');
+    indicator.className = 'stale-indicator text-center text-sm text-accent-amber mb-4 flex items-center justify-center gap-2';
+    indicator.innerHTML = `
+      <ion-icon name="time-outline"></ion-icon>
+      <span>${escapeHtml(text)}</span>
+    `;
+    section?.querySelector('.max-w-4xl')?.prepend(indicator);
+  }
+
+  function showError(errorText: string, retryText: string) {
+    const totalEl = document.getElementById('stats-total');
+    if (totalEl) {
+      totalEl.innerHTML = `
+        <div class="flex flex-col items-center gap-2">
+          <span class="text-text-secondary text-base">${escapeHtml(errorText)}</span>
+          <button onclick="updateStats()" class="text-accent-amber hover:text-accent-orange underline text-sm">
+            ${escapeHtml(retryText)}
+          </button>
+        </div>
+      `;
     }
   }
   

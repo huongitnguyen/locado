@@ -4,6 +4,10 @@ interface Props {
     changelog: {
       title: string;
       viewAll?: string;
+      error: string;
+      stale: string;
+      retry: string;
+      noData: string;
     };
   };
 }
@@ -11,7 +15,14 @@ interface Props {
 const { t } = Astro.props;
 ---
 
-<section id="changelog" class="py-20 px-4 section-mesh">
+<section
+  id="changelog"
+  class="py-20 px-4 section-mesh"
+  data-error-text={t.changelog.error}
+  data-stale-text={t.changelog.stale}
+  data-retry-text={t.changelog.retry}
+  data-no-data-text={t.changelog.noData}
+>
   <div class="max-w-3xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">
       <span class="gradient-text">{t.changelog.title}</span>
@@ -64,6 +75,21 @@ const { t } = Astro.props;
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
   }
+
+  .stale-indicator {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
 
 <script>
@@ -76,17 +102,39 @@ const { t } = Astro.props;
     downloads: number;
   }
 
+  interface ReleasesData {
+    releases: Release[];
+    isStale?: boolean;
+    staleAt?: number;
+  }
+
   async function updateChangelog() {
     const container = document.getElementById('changelog-container');
     if (!container) return;
 
+    const section = container.closest('section');
+    const errorText = section?.dataset.errorText || 'Unable to load releases';
+    const staleText = section?.dataset.staleText || 'Data may be outdated';
+    const retryText = section?.dataset.retryText || 'Retry';
+    const noDataText = section?.dataset.noDataText || 'No releases available';
+
     try {
       const res = await fetch('/api/releases');
-      if (!res.ok) throw new Error('Failed to fetch');
-      
-      const data = await res.json();
+      const data: ReleasesData = await res.json();
+
+      // Handle error response (429, 503) - only error if no stale data
+      if (!res.ok && !data.isStale) {
+        showChangelogError(container, errorText, retryText);
+        return;
+      }
+
+      // Show stale indicator if data is stale
+      if (data.isStale) {
+        showChangelogStaleIndicator(section, staleText);
+      }
+
       if (!data.releases || data.releases.length === 0) {
-        container.innerHTML = '<div class="card text-center text-text-secondary"><p>No releases available</p></div>';
+        container.innerHTML = `<div class="card text-center text-text-secondary"><p>${escapeHtml(noDataText)}</p></div>`;
         return;
       }
 
@@ -111,8 +159,33 @@ const { t } = Astro.props;
       `).join('');
     } catch (e) {
       console.error('Failed to fetch releases:', e);
-      container.innerHTML = '<div class="card text-center text-text-secondary"><p>Failed to load releases</p></div>';
+      showChangelogError(container, errorText, retryText);
     }
+  }
+
+  function showChangelogStaleIndicator(section: Element | null, text: string) {
+    if (!section) return;
+    const existing = section.querySelector('.stale-indicator');
+    if (existing) return;
+
+    const indicator = document.createElement('div');
+    indicator.className = 'stale-indicator text-center text-sm text-accent-amber mb-4 flex items-center justify-center gap-2';
+    indicator.innerHTML = `
+      <ion-icon name="time-outline"></ion-icon>
+      <span>${escapeHtml(text)}</span>
+    `;
+    section.querySelector('.max-w-3xl')?.prepend(indicator);
+  }
+
+  function showChangelogError(container: HTMLElement, errorText: string, retryText: string) {
+    container.innerHTML = `
+      <div class="card text-center text-text-secondary">
+        <p class="mb-2">${escapeHtml(errorText)}</p>
+        <button onclick="updateChangelog()" class="text-accent-amber hover:text-accent-orange underline text-sm">
+          ${escapeHtml(retryText)}
+        </button>
+      </div>
+    `;
   }
 
   function escapeHtml(text: string): string {

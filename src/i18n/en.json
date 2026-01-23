@@ -122,11 +122,24 @@
       "macos": "macOS",
       "linux": "Linux",
       "windows": "Windows"
-    }
+    },
+    "error": "Unable to load statistics",
+    "stale": "Data may be outdated",
+    "retry": "Retry",
+    "noData": "No download data available"
   },
   "changelog": {
     "title": "Changelog",
-    "viewAll": "View all releases on GitHub"
+    "viewAll": "View all releases on GitHub",
+    "error": "Unable to load releases",
+    "stale": "Data may be outdated",
+    "retry": "Retry",
+    "noData": "No releases available"
+  },
+  "sponsor": {
+    "title": "Support Locado",
+    "description": "If Locado helps your workflow, consider sponsoring its development",
+    "button": "Sponsor on GitHub"
   },
   "footer": {
     "madeBy": "Made with",

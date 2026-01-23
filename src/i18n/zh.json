@@ -118,11 +118,24 @@
       "macos": "macOS",
       "linux": "Linux",
       "windows": "Windows"
-    }
+    },
+    "error": "无法加载统计数据",
+    "stale": "数据可能已过时",
+    "retry": "重试",
+    "noData": "没有下载数据"
   },
   "changelog": {
     "title": "更新日志",
-    "viewAll": "在 GitHub 上查看所有版本"
+    "viewAll": "在 GitHub 上查看所有版本",
+    "error": "无法加载版本",
+    "stale": "数据可能已过时",
+    "retry": "重试",
+    "noData": "没有可用版本"
+  },
+  "sponsor": {
+    "title": "支持 Locado",
+    "description": "如果 Locado 对您的工作流程有帮助，请考虑赞助其开发",
+    "button": "在 GitHub 上赞助"
   },
   "footer": {
     "madeBy": "用",

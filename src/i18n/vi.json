@@ -122,11 +122,24 @@
       "macos": "macOS",
       "linux": "Linux",
       "windows": "Windows"
-    }
+    },
+    "error": "Không thể tải thống kê",
+    "stale": "Dữ liệu có thể đã cũ",
+    "retry": "Thử lại",
+    "noData": "Không có dữ liệu tải xuống"
   },
   "changelog": {
     "title": "Lịch sử phiên bản",
-    "viewAll": "Xem tất cả phiên bản trên GitHub"
+    "viewAll": "Xem tất cả phiên bản trên GitHub",
+    "error": "Không thể tải phiên bản",
+    "stale": "Dữ liệu có thể đã cũ",
+    "retry": "Thử lại",
+    "noData": "Không có phiên bản nào"
+  },
+  "sponsor": {
+    "title": "Ủng hộ Locado",
+    "description": "Nếu Locado giúp ích cho công việc của bạn, hãy cân nhắc ủng hộ phát triển",
+    "button": "Ủng hộ trên GitHub"
   },
   "footer": {
     "madeBy": "Được tạo với",
