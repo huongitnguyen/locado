@@ -73,3 +73,11 @@ export interface StatsSnapshot {
   byPlatform: Record<Platform, number>;
   collectedAt: number;
 }
+
+// API Error Response type
+export interface ApiErrorResponse {
+  error: string;
+  code: 'RATE_LIMITED' | 'GITHUB_ERROR' | 'INTERNAL_ERROR';
+  retryAfter?: number; // seconds until retry
+  details?: string;
+}

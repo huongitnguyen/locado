@@ -1,6 +1,6 @@
 /// <reference types="@cloudflare/workers-types" />
-import type { Env, DownloadStats, Platform } from './_shared/types';
-import { fetchReleasesWithCache, extractPlatform, getCorsHeaders } from './_shared/github';
+import type { Env, DownloadStats, ApiErrorResponse } from './_shared/types';
+import { fetchReleasesWithCache, extractPlatform, getCorsHeaders, GitHubRateLimitError } from './_shared/github';
 
 // Handle CORS preflight
 export const onRequestOptions: PagesFunction<Env> = async ({ request, env }) => {
@@ -55,12 +55,36 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
     });
   } catch (error) {
     console.error('Failed to fetch stats:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to fetch stats' }), 
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+
+    // Handle rate limit error with 429 status
+    if (error instanceof GitHubRateLimitError) {
+      const retryAfter = error.getRetryAfter();
+      const errorResponse: ApiErrorResponse = {
+        error: 'Rate limit exceeded',
+        code: 'RATE_LIMITED',
+        retryAfter
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'Retry-After': String(retryAfter)
+        }
+      });
+    }
+
+    // Handle other GitHub/fetch errors with 503
+    // Only expose error details in development (not on production origin)
+    const isDev = !request.url.includes('locado.hxd.app');
+    const errorResponse: ApiErrorResponse = {
+      error: 'Service temporarily unavailable',
+      code: 'GITHUB_ERROR',
+      ...(isDev && { details: error instanceof Error ? error.message : 'Unknown error' })
+    };
+    return new Response(JSON.stringify(errorResponse), {
+      status: 503,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 };

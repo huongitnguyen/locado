@@ -4,6 +4,25 @@ import type { Env, GitHubRelease, Platform } from './types';
 const GITHUB_API_BASE = 'https://api.github.com';
 
 /**
+ * Custom error for GitHub API rate limiting
+ * Thrown when GitHub returns 403 with X-RateLimit-Remaining: 0
+ */
+export class GitHubRateLimitError extends Error {
+  resetTimestamp: number;
+
+  constructor(resetTimestamp: number) {
+    super('GitHub API rate limit exceeded');
+    this.name = 'GitHubRateLimitError';
+    this.resetTimestamp = resetTimestamp;
+  }
+
+  /** Returns seconds until rate limit resets */
+  getRetryAfter(): number {
+    return Math.max(0, this.resetTimestamp - Math.floor(Date.now() / 1000));
+  }
+}
+
+/**
  * Fetch releases from GitHub API with Cloudflare Cache API
  */
 export async function fetchReleasesWithCache(
@@ -35,8 +54,26 @@ export async function fetchReleasesWithCache(
     }
   });
 
+  // Check for rate limit (GitHub returns 403 when rate limited)
+  if (response.status === 403) {
+    const remaining = response.headers.get('X-RateLimit-Remaining');
+    const reset = response.headers.get('X-RateLimit-Reset');
+
+    if (remaining === '0' && reset) {
+      const resetTimestamp = parseInt(reset, 10);
+      // Validate timestamp is a valid number (NaN check)
+      if (!Number.isNaN(resetTimestamp) && resetTimestamp > 0) {
+        console.error(`GitHub API rate limit exceeded. Resets at: ${new Date(resetTimestamp * 1000).toISOString()}`);
+        throw new GitHubRateLimitError(resetTimestamp);
+      }
+      // Fallback: use 60 seconds if header is malformed
+      console.error('GitHub API rate limit exceeded. Reset timestamp invalid, using 60s fallback.');
+      throw new GitHubRateLimitError(Math.floor(Date.now() / 1000) + 60);
+    }
+  }
+
   if (!response.ok) {
-    throw new Error(`GitHub API error: ${response.status}`);
+    throw new Error(`GitHub API error: ${response.status} - ${response.statusText}`);
   }
 
   const data: GitHubRelease[] = await response.json();
