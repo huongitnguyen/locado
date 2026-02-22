@@ -22,30 +22,26 @@ export class GitHubRateLimitError extends Error {
   }
 }
 
+// KV key for raw GitHub releases cache
+export const KV_RAW_RELEASES_KEY = 'github-raw-releases';
+const CACHE_FRESHNESS_MS = 15 * 60 * 1000; // 15 minutes
+
 /**
- * Fetch releases from GitHub API with Cloudflare Cache API
+ * Fetch releases from GitHub API with KV-based caching (15-min freshness)
+ * Returns cached data if fresh, otherwise fetches from GitHub and saves to KV
  */
 export async function fetchReleasesWithCache(
   env: Env,
-  request: Request,
+  _request: Request,
   waitUntil: (promise: Promise<unknown>) => void
 ): Promise<GitHubRelease[]> {
-  // @ts-expect-error - Cloudflare Workers runtime has caches.default
-  const cache = caches.default as Cache;
-  const ttl = parseInt(env.CACHE_TTL_SECONDS || '120');
-  
-  // Create cache key based on repo
-  const cacheKey = new Request(
-    `https://cache.locado.hxd.app/github-releases/${env.GITHUB_OWNER}/${env.GITHUB_REPO}`
-  );
-
-  // Check cache first
-  const cached = await cache.match(cacheKey);
-  if (cached) {
-    return cached.json();
+  // Check KV cache first — return immediately if fresh (<15 min old)
+  const cached = await loadFromKV<GitHubRelease[]>(env.STATS_KV, KV_RAW_RELEASES_KEY);
+  if (cached && (Date.now() - cached.savedAt) < CACHE_FRESHNESS_MS) {
+    return cached.data;
   }
 
-  // Fetch from GitHub API
+  // Cache miss or stale — fetch from GitHub API
   const url = `${GITHUB_API_BASE}/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/releases?per_page=100`;
   const response = await fetch(url, {
     headers: {
@@ -61,12 +57,10 @@ export async function fetchReleasesWithCache(
 
     if (remaining === '0' && reset) {
       const resetTimestamp = parseInt(reset, 10);
-      // Validate timestamp is a valid number (NaN check)
       if (!Number.isNaN(resetTimestamp) && resetTimestamp > 0) {
         console.error(`GitHub API rate limit exceeded. Resets at: ${new Date(resetTimestamp * 1000).toISOString()}`);
         throw new GitHubRateLimitError(resetTimestamp);
       }
-      // Fallback: use 60 seconds if header is malformed
       console.error('GitHub API rate limit exceeded. Reset timestamp invalid, using 60s fallback.');
       throw new GitHubRateLimitError(Math.floor(Date.now() / 1000) + 60);
     }
@@ -78,16 +72,8 @@ export async function fetchReleasesWithCache(
 
   const data: GitHubRelease[] = await response.json();
 
-  // Cache the response
-  const cacheResponse = new Response(JSON.stringify(data), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': `public, max-age=${ttl}`
-    }
-  });
-  
-  // Non-blocking cache write
-  waitUntil(cache.put(cacheKey, cacheResponse));
+  // Save to KV cache (non-blocking)
+  waitUntil(saveToKV(env.STATS_KV, KV_RAW_RELEASES_KEY, data));
 
   return data;
 }

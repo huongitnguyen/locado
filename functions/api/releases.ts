@@ -43,7 +43,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=120'
+        'Cache-Control': 'public, max-age=900'
       }
     });
   } catch (error) {

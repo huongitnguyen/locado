@@ -6,7 +6,6 @@ pages_build_output_dir = "./dist"
 [vars]
 GITHUB_OWNER = "xuandung38"
 GITHUB_REPO = "locado"
-CACHE_TTL_SECONDS = "120"
 ALLOWED_ORIGINS = "https://locado.hxd.app,http://localhost:4321,http://localhost:3000"
 
 # KV namespace for historical stats (Phase 5)

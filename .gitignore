@@ -11,3 +11,4 @@ plans/*
 CLAUDE.md
 .agent/*
 .opencode/*
+.wrangler/*

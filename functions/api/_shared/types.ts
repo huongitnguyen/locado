@@ -4,7 +4,6 @@
 export interface Env {
   GITHUB_OWNER: string;
   GITHUB_REPO: string;
-  CACHE_TTL_SECONDS: string;
   ALLOWED_ORIGINS: string;
   STATS_KV?: KVNamespace;
 }
