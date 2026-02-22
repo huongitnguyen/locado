@@ -22,26 +22,31 @@ export class GitHubRateLimitError extends Error {
   }
 }
 
-// KV key for raw GitHub releases cache
-export const KV_RAW_RELEASES_KEY = 'github-raw-releases';
-const CACHE_FRESHNESS_MS = 15 * 60 * 1000; // 15 minutes
+// Cache TTL: 15 minutes
+const CACHE_TTL_SECONDS = 900;
 
 /**
- * Fetch releases from GitHub API with KV-based caching (15-min freshness)
- * Returns cached data if fresh, otherwise fetches from GitHub and saves to KV
+ * Fetch releases from GitHub API with Cloudflare Cache API (15-min TTL)
+ * Cache API is always available on CF Workers, no KV setup needed
  */
 export async function fetchReleasesWithCache(
   env: Env,
   _request: Request,
   waitUntil: (promise: Promise<unknown>) => void
 ): Promise<GitHubRelease[]> {
-  // Check KV cache first — return immediately if fresh (<15 min old)
-  const cached = await loadFromKV<GitHubRelease[]>(env.STATS_KV, KV_RAW_RELEASES_KEY);
-  if (cached && (Date.now() - cached.savedAt) < CACHE_FRESHNESS_MS) {
-    return cached.data;
+  // @ts-expect-error - Cloudflare Workers runtime has caches.default
+  const cache = caches.default as Cache;
+  const cacheKey = new Request(
+    `https://cache.locado.hxd.app/github-releases/${env.GITHUB_OWNER}/${env.GITHUB_REPO}`
+  );
+
+  // Check edge cache first (15-min TTL)
+  const cached = await cache.match(cacheKey);
+  if (cached) {
+    return cached.json();
   }
 
-  // Cache miss or stale — fetch from GitHub API
+  // Cache miss — fetch from GitHub API
   const url = `${GITHUB_API_BASE}/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/releases?per_page=100`;
   const response = await fetch(url, {
     headers: {
@@ -72,8 +77,14 @@ export async function fetchReleasesWithCache(
 
   const data: GitHubRelease[] = await response.json();
 
-  // Save to KV cache (non-blocking)
-  waitUntil(saveToKV(env.STATS_KV, KV_RAW_RELEASES_KEY, data));
+  // Cache at edge for 15 min (non-blocking)
+  const cacheResponse = new Response(JSON.stringify(data), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}`
+    }
+  });
+  waitUntil(cache.put(cacheKey, cacheResponse));
 
   return data;
 }
